@@ -18,7 +18,7 @@ phases:
       - pwd
       - ls -la
       - echo "🔹 Moving into service folder..."
-      - cd services/user-service || { echo "❌ Path not found!"; exit 1; }
+      - cd services/user-services || { echo "❌ Path not found!"; exit 1; }
       - echo "🔹 Inside service directory:"
       - pwd
       - ls -la
