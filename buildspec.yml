@@ -10,34 +10,39 @@ phases:
   pre_build:
     commands:
       - echo "🔹 Build started on $(date)"
+      - echo "🔹 Branch detected: $CODEBUILD_WEBHOOK_HEAD_REF"
+
+      # ✅ Ensure only rahul-dev branch triggers build
+      - |
+        if [ "$CODEBUILD_WEBHOOK_HEAD_REF" != "refs/heads/rahul-dev" ]; then
+          echo "❌ Build cancelled: Not rahul-dev branch"
+          exit 1
+        fi
+
       - echo "🔹 Logging in to Amazon ECR..."
       - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
+
+      # Tag based on commit hash
       - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
       - IMAGE_TAG=${COMMIT_HASH:-latest}
-      - echo "🔹 Using tag: $IMAGE_TAG"
+      - echo "🔹 Using image tag: $IMAGE_TAG"
 
   build:
     commands:
       - echo "🔹 Building Docker image..."
       - cd services/$SERVICE_NAME
-      - docker build -t $SERVICE_NAME:$IMAGE_TAG -t $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY:$IMAGE_TAG --build-arg NODE_ENV=production .
 
-      - if [[ "$CODEBUILD_WEBHOOK_HEAD_REF" == "refs/heads/main" ]]; then
-          echo "🔹 Also tagging as latest";
-          docker tag $SERVICE_NAME:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY:latest;
-        fi
+      - docker build \
+          -t $SERVICE_NAME:$IMAGE_TAG \
+          -t $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY:$IMAGE_TAG \
+          --build-arg NODE_ENV=production .
 
   post_build:
     commands:
-      - echo "🔹 Pushing Docker images to ECR..."
+      - echo "🔹 Pushing Docker image to ECR..."
       - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY:$IMAGE_TAG
 
-      - if [[ "$CODEBUILD_WEBHOOK_HEAD_REF" == "refs/heads/main" ]]; then
-          docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY:latest;
-        fi
+      - echo "✅ Build & Push completed successfully"
 
-      - echo "✅ Build completed successfully"
-
-# No artifacts needed for EC2 deployment
 artifacts:
-  files: []
+  files: []   # No artifacts needed (image pushed to ECR)
