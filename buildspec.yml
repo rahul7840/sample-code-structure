@@ -1,38 +1,55 @@
 version: 0.2
 
+env:
+  variables:
+    AWS_REGION: "ap-south-1"
+    AWS_ACCOUNT_ID: "208116833517"
+    ECR_BASE: "208116833517.dkr.ecr.ap-south-1.amazonaws.com"
+    SERVICES_ROOT: "services"   # Folder where microservices live
+
 phases:
   pre_build:
     commands:
-      - echo "🔹 Logging in to Amazon ECR..."
-      - aws --version
-      - aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 208116833517.dkr.ecr.ap-south-1.amazonaws.com
+      - echo "🔹 Logging into Amazon ECR..."
+      - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_BASE
+      - echo "🔹 Checking changed services..."
+      - |
+        CHANGED_SERVICES=$(git diff --name-only HEAD~1 HEAD | grep "^$SERVICES_ROOT/" | cut -d'/' -f2 | sort -u)
+        if [[ -z "$CHANGED_SERVICES" ]]; then
+          echo "✅ No microservice changes detected. Skipping build."
+          exit 0
+        fi
+        echo "🔎 Changed services detected: $CHANGED_SERVICES"
+        export CHANGED_SERVICES
       - echo "🔹 Getting commit hash..."
       - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
       - IMAGE_TAG=${COMMIT_HASH:-latest}
-      - REPOSITORY_URI=208116833517.dkr.ecr.ap-south-1.amazonaws.com/sample-server
+      - echo "🔹 Using image tag: $IMAGE_TAG"
 
   build:
     commands:
       - echo "🔹 Build started on $(date)"
-      - echo "🔹 Current directory before cd:"
-      - pwd
-      - ls -la
-      - echo "🔹 Moving into service folder..."
-      - cd services/user-services || { echo "❌ Path not found!"; exit 1; }
-      - echo "🔹 Inside service directory:"
-      - pwd
-      - ls -la
-      - echo "🔹 Building Docker image..."
-      - docker build -t $REPOSITORY_URI:latest .
-      - docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$IMAGE_TAG
+      - |
+        for svc in $CHANGED_SERVICES; do
+          FULL_REPO="$ECR_BASE/$svc"
+          echo "⚙️ Building service: $svc"
+          cd $SERVICES_ROOT/$svc || { echo "❌ Folder not found: $svc"; exit 1; }
+          docker build -t $FULL_REPO:latest .
+          docker tag $FULL_REPO:latest $FULL_REPO:$IMAGE_TAG
+          cd - >/dev/null
+        done
 
   post_build:
     commands:
-      - echo "🔹 Build completed on $(date)"
-      - echo "🔹 Pushing Docker images..."
-      - docker push $REPOSITORY_URI:latest
-      - docker push $REPOSITORY_URI:$IMAGE_TAG
+      - echo "🚀 Pushing images to ECR..."
+      - |
+        for svc in $CHANGED_SERVICES; do
+          FULL_REPO="$ECR_BASE/$svc"
+          docker push $FULL_REPO:latest
+          docker push $FULL_REPO:$IMAGE_TAG
+          echo "✅ Pushed $FULL_REPO:$IMAGE_TAG"
+        done
+      - echo "✅ Build finished at $(date)"
 
 artifacts:
-  files:
-    - '**/*'
+  files: []
