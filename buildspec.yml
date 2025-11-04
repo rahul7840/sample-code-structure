@@ -1,26 +1,21 @@
 version: 0.2
 
-env:
-  variables:
-    AWS_REGION: "ap-south-1"
-    REPOSITORY_URI: "208116833517.dkr.ecr.ap-south-1.amazonaws.com/sample-server"
-
 phases:
   pre_build:
     commands:
       - echo "🔹 Logging in to Amazon ECR..."
       - aws --version
-      - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $REPOSITORY_URI
+      - aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 208116833517.dkr.ecr.ap-south-1.amazonaws.com
       - echo "🔹 Getting commit hash..."
       - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
       - IMAGE_TAG=${COMMIT_HASH:-latest}
-      - echo "🔹 Using image tag: $IMAGE_TAG"
+      - REPOSITORY_URI=208116833517.dkr.ecr.ap-south-1.amazonaws.com/sample-server
 
   build:
     commands:
       - echo "🔹 Build started on $(date)"
       - echo "🔹 Building Docker image..."
-      - cd services/user-services
+      - cd services/user-service                # ✅ Go inside service
       - docker build -t $REPOSITORY_URI:latest .
       - docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$IMAGE_TAG
 
@@ -30,9 +25,7 @@ phases:
       - echo "🔹 Pushing Docker images..."
       - docker push $REPOSITORY_URI:latest
       - docker push $REPOSITORY_URI:$IMAGE_TAG
-      - echo "🔹 Writing imagedefinitions.json..."
-      - printf '[{"name":"sample-server","imageUri":"%s"}]' $REPOSITORY_URI:$IMAGE_TAG > imagedefinitions.json
 
 artifacts:
   files:
-    - imagedefinitions.json
+    - '**/*'
