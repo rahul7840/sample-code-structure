@@ -14,8 +14,15 @@ phases:
   build:
     commands:
       - echo "🔹 Build started on $(date)"
+      - echo "🔹 Current directory before cd:"
+      - pwd
+      - ls -la
+      - echo "🔹 Moving into service folder..."
+      - cd services/user-service || { echo "❌ Path not found!"; exit 1; }
+      - echo "🔹 Inside service directory:"
+      - pwd
+      - ls -la
       - echo "🔹 Building Docker image..."
-      - cd services/user-services                # ✅ Go inside service
       - docker build -t $REPOSITORY_URI:latest .
       - docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$IMAGE_TAG
 
