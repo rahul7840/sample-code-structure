@@ -1,43 +1,28 @@
 version: 0.2
 
-env:
-  variables:
-    AWS_REGION: "ap-south-1"
-    AWS_ACCOUNT_ID: "208116833517"
-    ECR_BASE: "208116833517.dkr.ecr.ap-south-1.amazonaws.com"
-    SERVICES_ROOT: "services"   # Folder where microservices live
-
 phases:
   pre_build:
     commands:
-      - echo "🔹 Logging into Amazon ECR..."
-      - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_BASE
-      - echo "🔹 Checking changed services..."
-      - |
-        CHANGED_SERVICES=$(git diff --name-only HEAD~1 HEAD | grep "^$SERVICES_ROOT/" | cut -d'/' -f2 | sort -u)
-        if [[ -z "$CHANGED_SERVICES" ]]; then
-          echo "✅ No microservice changes detected. Skipping build."
-          exit 0
-        fi
-        echo "🔎 Changed services detected: $CHANGED_SERVICES"
-        export CHANGED_SERVICES
+      - echo "🔹 Logging in to Amazon ECR..."
+      - aws --version
+      - aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 208116833517.dkr.ecr.ap-south-1.amazonaws.com
       - echo "🔹 Getting commit hash..."
       - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
       - IMAGE_TAG=${COMMIT_HASH:-latest}
-      - echo "🔹 Using image tag: $IMAGE_TAG"
+      - REPOSITORY_URI=208116833517.dkr.ecr.ap-south-1.amazonaws.com/sample-server
 
   build:
     commands:
-      - echo "🔹 Build started on $(date)"
-      - |
-        for svc in $CHANGED_SERVICES; do
-          FULL_REPO="$ECR_BASE/$svc"
-          echo "⚙️ Building service: $svc"
-          cd $SERVICES_ROOT/$svc || { echo "❌ Folder not found: $svc"; exit 1; }
-          docker build -t $FULL_REPO:latest .
-          docker tag $FULL_REPO:latest $FULL_REPO:$IMAGE_TAG
-          cd - >/dev/null
-        done
+        - echo "🔹 Build started on $(date)"
+        - |
+          for svc in $CHANGED_SERVICES; do
+            FULL_REPO="$ECR_BASE/$svc"
+            echo "⚙️ Building service: $svc"
+            cd $SERVICES_ROOT/$svc || { echo "❌ Folder not found: $svc"; exit 1; }
+            docker build -t $FULL_REPO:latest .
+            docker tag $FULL_REPO:latest $FULL_REPO:$IMAGE_TAG
+            cd - >/dev/null
+          done
 
   post_build:
     commands:
@@ -52,4 +37,5 @@ phases:
       - echo "✅ Build finished at $(date)"
 
 artifacts:
-  files: []
+  files:
+    - '**/*'
