@@ -1,13 +1,18 @@
 #!/bin/bash
-echo "✅ Running post-deploy script..."
+echo "🚀 Starting deployment..."
 
-# Go to deployment dir
-cd /home/ec2-user/deploy
+# Login to ECR
+aws ecr get-login-password --region ap-south-1 \
+  | docker login --username AWS --password-stdin 208116833517.dkr.ecr.ap-south-1.amazonaws.com
 
-# Pull latest image & restart container
-docker pull 208116833517.dkr.ecr.ap-south-1.amazonaws.com/sample-server:latest
-docker stop sample-server || true
-docker rm sample-server || true
-docker run -d --name sample-server -p 3000:3000 208116833517.dkr.ecr.ap-south-1.amazonaws.com/sample-server:latest
+# Stop old container
+docker stop user-service || true
+docker rm user-service || true
 
-echo "🚀 Deployment completed!"
+# Pull latest image
+docker pull 208116833517.dkr.ecr.ap-south-1.amazonaws.com/user-service:latest
+
+# Run new container
+docker run -d --name user-service -p 11001:11001 208116833517.dkr.ecr.ap-south-1.amazonaws.com/user-service:latest
+
+echo "✅ Deployment completed!"
