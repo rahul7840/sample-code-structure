@@ -9,7 +9,6 @@ phases:
       - echo "🔹 Getting commit hash..."
       - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
       - IMAGE_TAG=${COMMIT_HASH:-latest}
-      - REPOSITORY_URI=208116833517.dkr.ecr.ap-south-1.amazonaws.com/sample-server
       - echo "🔹 Detecting all microservices in 'services'..."
       - SERVICES_LIST=$(ls -d services/*/ | xargs -n1 basename)
       - echo "📌 Services found: $SERVICES_LIST"
@@ -17,22 +16,22 @@ phases:
 
   build:
     commands:
-        - echo "🔹 Build started on $(date)"
-        - |
-          for svc in $CHANGED_SERVICES; do
-            FULL_REPO="208116833517.dkr.ecr.ap-south-1.amazonaws.com/$svc"
-            echo "⚙️ Building service: $svc"
-            cd services/$svc || { echo "❌ Folder not found: $svc"; exit 1; }
-            docker build -t $FULL_REPO:latest .
-            docker tag $FULL_REPO:latest $FULL_REPO:$IMAGE_TAG
-            cd - >/dev/null
-          done
+      - echo "🔹 Build started on $(date)"
+      - |
+        for svc in $SERVICES_LIST; do
+          FULL_REPO="208116833517.dkr.ecr.ap-south-1.amazonaws.com/$svc"
+          echo "⚙️ Building service: $svc"
+          cd services/$svc || { echo "❌ Folder not found: $svc"; exit 1; }
+          docker build -t $FULL_REPO:latest .
+          docker tag $FULL_REPO:latest $FULL_REPO:$IMAGE_TAG
+          cd - >/dev/null
+        done
 
   post_build:
     commands:
       - echo "🚀 Pushing images to ECR..."
       - |
-        for svc in $CHANGED_SERVICES; do
+        for svc in $SERVICES_LIST; do
           FULL_REPO="208116833517.dkr.ecr.ap-south-1.amazonaws.com/$svc"
           docker push $FULL_REPO:latest
           docker push $FULL_REPO:$IMAGE_TAG
