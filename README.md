@@ -82,7 +82,6 @@ AWS_DEFAULT_REGION=
 AWS_FILE_PATH=
 
 ```
-
 ## 🚀 Quick Start (TL;DR)
 
 # 1️⃣ Go inside any service
@@ -123,5 +122,8 @@ npx migrate-mongo status
 ✅ Insert link above inside README
 ✅ Commit updated README to repo
 ```
+## 📌 Points to Remember
+✅ Follow camelCase
+✅ Every service must have a unique port
 
 
