@@ -14,23 +14,27 @@ import { AnyFilesInterceptor } from '@nestjs/platform-express';
 import * as fs from 'fs';
 import { v4 as uuidv4 } from 'uuid';
 import * as path from 'path';
-import { ApiBody, ApiConsumes, ApiResponse } from '@nestjs/swagger';
+import { ApiBody, ApiConsumes, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { MediaModel } from 'src/model/media-model';
 
 @Controller('category')
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
 
   @Post('add')
+  @ApiTags('Category')
   addCategory(@Body() addCategoryDto: AddCategoryDto) {
     return this.categoryService.addCategory(addCategoryDto);
   }
 
   @Get('')
+  @ApiTags('Category')
   listCategory() {
     return this.categoryService.listCategory();
   }
 
   @Post('files')
+  @ApiTags('Files')
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {
@@ -66,26 +70,26 @@ export class CategoryController {
     }),
   )
   async uploadFiles(@Response() res, @Request() req) {
-    const messages = {
-      en: {
-        common: {
-          files: 'Files uploaded successfully',
-          error: 'Failed to process files',
-        },
-      },
-    };
-
     try {
       const inputFiles = req.files as any[];
       const finalFiles = [];
 
       for (const file of inputFiles) {
         try {
-          // Normalize path
           file.path = file.path.replace(/\\/g, '/');
 
-          // Just add the uploaded file to response - no processing
+          const mediaRecord = await MediaModel.create({
+            size: file.size,
+            file_path: file.path,
+            original_file_name: file.originalname,
+            mimetype: file.mimetype,
+            file_name: file.filename,
+            created_at: new Date(),
+            updated_at: new Date(),
+          });
+
           finalFiles.push({
+            media_id: Number(mediaRecord.media_id),
             fieldname: file.fieldname,
             originalname: file.originalname,
             encoding: file.encoding,
@@ -100,7 +104,6 @@ export class CategoryController {
             `Error processing file ${file.originalname}:`,
             fileError,
           );
-          // Continue with next file even if one fails
         }
       }
 
