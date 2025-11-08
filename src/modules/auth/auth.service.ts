@@ -284,7 +284,7 @@ export class AuthService {
 }
 
 const generateAuthToken = (criteriaForJwt: any): string => {
-  const secret = process.env.JWT_SECRET || 'fallback_secret';
+  const secret = process.env.JWT_SECRET;
 
   try {
     const token = jwt.sign(criteriaForJwt, secret, { expiresIn: '1d' });
