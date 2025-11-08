@@ -16,6 +16,7 @@ import { Pulse } from 'src/model/pulses.model';
 import { MarketModel } from 'src/model/market-model';
 import { JoinCommunityDto } from './dto/join-request.dto';
 import { RoleModel } from 'src/model/role-model';
+import { JobTitleModel } from 'src/model/job-title-model';
 
 @Injectable()
 export class CommunityService {
@@ -43,6 +44,7 @@ export class CommunityService {
     @InjectModel(CategoryModel)
     private readonly categoryModel: typeof CategoryModel,
     @InjectModel(RoleModel) private readonly roleModel: typeof RoleModel,
+    @InjectModel(JobTitleModel) private readonly jobTitleModel: typeof JobTitleModel,
   ) { }
 
   async addCommunity(addCommunityDto: AddCommunityDto) {
@@ -161,6 +163,12 @@ export class CommunityService {
           {
             model: this.userProfileModel,
             as: 'userProfile',
+            include: [
+              {
+                model: this.jobTitleModel,
+                as: 'jobTitle',
+              },
+            ],
           },
         ],
       });
@@ -332,7 +340,6 @@ export class CommunityService {
         where: {
           user_id,
         },
-        attributes: ['is_manager'],
       });
 
       if (!user.is_manager && user.is_super_admin) {
@@ -342,18 +349,22 @@ export class CommunityService {
           },
         });
 
-        let totalMembers: number = 0, totalCommunities: number = 0, totalPosts: number = 0;
+        let totalMembers: number = 0, totalCommunities: number = 0, totalPosts: number = 0, totalActiveCommunities: number = 0;
 
         for (const community of communities) {
           totalMembers += Number(community.member_count);
           totalCommunities++;
           totalPosts += Number(community.post_count);
+          if (community.status_enum === 'ACTIVE') {
+            totalActiveCommunities++;
+          }
         }
 
         return sendSuccess('Community admin listing fetched successfully', communities, {
           totalMembers,
           totalCommunities,
           totalPosts,
+          totalActiveCommunities,
         });
       } else {
         const communities = await this.userCommunityMappingModel.findAll({

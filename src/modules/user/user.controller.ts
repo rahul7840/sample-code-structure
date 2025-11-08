@@ -1,8 +1,11 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
 import { IsNormalUserDto } from './dto/is-normal-user.dto';
+import { UserId } from '../utils/decorators/user-id.decorator';
+import { UserAuthGuard } from '../utils/guards/auth.guard';
 
 @Controller('user')
+@UseGuards(UserAuthGuard)
 export class UserController {
     constructor(private readonly userService: UserService) {}
 
@@ -19,10 +22,10 @@ export class UserController {
         return this.userService.getManagers();
     }
 
-    // @Get('profile')
-    // async getProfile(
-    //     @
-    // ) {
-    //     return this.userService.getProfile();
-    // }
+    @Get('profile')
+    async getProfile(
+        @UserId() user_id: number,
+    ) {
+        return this.userService.getProfile(user_id);
+    }
 }

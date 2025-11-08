@@ -24,6 +24,7 @@ import { UserModule } from './modules/user/user.module';
 import { Pulse } from './model/pulses.model';
 import { CommunityItem } from './model/communities-item-model';
 import { MarketModel } from './model/market-model';
+import { CommunityListingModule } from './modules/community-listing/community-listing.module';
 
 @Module({
   imports: [
@@ -89,6 +90,7 @@ import { MarketModel } from './model/market-model';
     JobTitlesModule,
     FilesModule,
     UserModule,
+    CommunityListingModule
   ],
   controllers: [AppController],
   providers: [AppService],
