@@ -43,7 +43,7 @@ import { CommunityListingModule } from './modules/community-listing/community-li
       dialectOptions: {
         ssl: {
           require: true,
-          rejectUnauthorized: false, // important for DigitalOcean
+          rejectUnauthorized: false,
         },
         statement_timeout: 30000,
         idle_in_transaction_session_timeout: 20000,
@@ -92,7 +92,7 @@ import { CommunityListingModule } from './modules/community-listing/community-li
     JobTitlesModule,
     FilesModule,
     UserModule,
-    CommunityListingModule
+    CommunityListingModule,
   ],
   controllers: [AppController],
   providers: [AppService],
