@@ -29,13 +29,19 @@ export class CommunityService {
     @InjectModel(Pulse) private readonly pulse: typeof Pulse,
     @InjectModel(CommunityItem)
     private readonly communityItem: typeof CommunityItem,
-    @InjectModel(CommunityItem) private readonly communityItemModel: typeof CommunityItem,
+    @InjectModel(CommunityItem)
+    private readonly communityItemModel: typeof CommunityItem,
     @InjectModel(Pulse) private readonly pulseModel: typeof Pulse,
-    @InjectModel(UserCommunityMappingModel) private readonly userCommunityMappingModel: typeof UserCommunityMappingModel,
-    @InjectModel(UserProfileModel) private readonly userProfileModel: typeof UserProfileModel,
-    @InjectModel(UserQuestionAnswerMappingModel) private readonly userQuestionAnswerMappingModel: typeof UserQuestionAnswerMappingModel,
-    @InjectModel(LocalitiesModel) private readonly localitiesModel: typeof LocalitiesModel,
-    @InjectModel(CategoryModel) private readonly categoryModel: typeof CategoryModel,
+    @InjectModel(UserCommunityMappingModel)
+    private readonly userCommunityMappingModel: typeof UserCommunityMappingModel,
+    @InjectModel(UserProfileModel)
+    private readonly userProfileModel: typeof UserProfileModel,
+    @InjectModel(UserQuestionAnswerMappingModel)
+    private readonly userQuestionAnswerMappingModel: typeof UserQuestionAnswerMappingModel,
+    @InjectModel(LocalitiesModel)
+    private readonly localitiesModel: typeof LocalitiesModel,
+    @InjectModel(CategoryModel)
+    private readonly categoryModel: typeof CategoryModel,
     @InjectModel(RoleModel) private readonly roleModel: typeof RoleModel,
   ) {}
 
@@ -83,7 +89,7 @@ export class CommunityService {
         finalResponce = await this.pulse.create({
           title: dto.pulse_title,
           description: dto.pulse_description,
-          community_item_id : CreateIntoCommunity.community_item_id
+          community_item_id: CreateIntoCommunity.community_item_id,
         });
       } else if (
         CreateIntoCommunity &&
@@ -113,39 +119,35 @@ export class CommunityService {
     }
   }
 
-  async getCommunityAdminDetails(
-    type: string,
-    community_id: number,
-  ) {
+  async getCommunityAdminDetails(type: string, community_id: number) {
     try {
-      
-        const communityItems = await this.communityItemModel.findAll({
-          where: {
-            community_id,
-            item_type_enum: type,
+      const communityItems = await this.communityItemModel.findAll({
+        where: {
+          community_id,
+          item_type_enum: type,
+        },
+        include: [
+          {
+            model: this.pulseModel,
+            as: 'pulse',
           },
-          include: [
-            {
-                model: this.pulseModel,
-                as: 'pulse',
-            },
-            {
-                model: this.marketModel,
-                as: 'market',
-            }
-          ]
-        });
+          {
+            model: this.marketModel,
+            as: 'market',
+          },
+        ],
+      });
 
-        return sendSuccess('Community items fetched successfully', communityItems);
-
+      return sendSuccess(
+        'Community items fetched successfully',
+        communityItems,
+      );
     } catch (error) {
-        return sendBadRequest(error.message);
+      return sendBadRequest(error.message);
     }
   }
 
-  async getCommunityUsers(
-    community_id: number,
-  ) {
+  async getCommunityUsers(community_id: number) {
     try {
       const communityUsers = await this.userCommunityMappingModel.findAll({
         where: {
@@ -155,26 +157,25 @@ export class CommunityService {
           {
             model: this.userProfileModel,
             as: 'userProfile',
-          }
-        ]
+          },
+        ],
       });
 
       const communityUsersWithDetails = communityUsers.map((user) => ({
         ...user.userProfile.toJSON(),
       }));
 
-      return sendSuccess('Community users fetched successfully', communityUsersWithDetails);
-
+      return sendSuccess(
+        'Community users fetched successfully',
+        communityUsersWithDetails,
+      );
     } catch (error) {
       return sendBadRequest(error.message);
     }
   }
 
-  async getJoinRequestDetails(
-    community_id: number,
-  ) {
+  async getJoinRequestDetails(community_id: number) {
     try {
-
       const joinRequests = await this.userCommunityMappingModel.findAll({
         where: {
           community_id,
@@ -185,79 +186,126 @@ export class CommunityService {
             model: this.userProfileModel,
             as: 'userProfile',
           },
-        ]
+        ],
       });
 
       const joinRequestsWithDetails = joinRequests.map((request) => ({
         ...request.userProfile.toJSON(),
       }));
 
-      return sendSuccess('Join requests fetched successfully', joinRequestsWithDetails);
-
+      return sendSuccess(
+        'Join requests fetched successfully',
+        joinRequestsWithDetails,
+      );
     } catch (error) {
       return sendBadRequest(error.message);
     }
   }
 
-  async getUserCommunityQuestionAnswers(
-    community_id: number,
+  async pulseToggler(
+    community_item_ids: number[],
+    item_type_enum: ItemTypeEnum,
     user_id: number,
   ) {
     try {
-      
-        const questionAnswers = await this.questionModel.findAll({
-          where: {
-            community_id,
+      if (!user_id) return sendBadRequest('user_id not detect');
+      if (!Object.values(ItemTypeEnum).includes(item_type_enum)) {
+        sendBadRequest('Invalid item_type_enum value');
+        return;
+      }
+
+      const items = await this.communityItem.findAll({
+        where: { community_item_id: community_item_ids, item_type_enum },
+      });
+
+      if (!items.length) {
+        sendBadRequest('No community items found');
+        return;
+      }
+
+      const updatedItems = [];
+
+      for (const item of items) {
+        const newStatus = !item.is_approved;
+        await this.communityItem.update(
+          { is_approved: newStatus },
+          {
+            where: {
+              community_item_id: item.community_item_id,
+              user_id,
+            },
           },
-          include: [
-            {
-              model: this.userQuestionAnswerMappingModel,
-              as: 'userQuestionAnswerMapping',
-              where: {
-                user_id,
-              }
-            }
-          ]
+        );
+        updatedItems.push({
+          community_item_id: item.community_item_id,
+          is_approved: newStatus,
         });
+      }
 
-        const questionAnswersWithDetails = questionAnswers.map((question) => ({
-          question: question.question_description,
-          userAnswer: question.userQuestionAnswerMapping?.answer,
-        }));
+      return {
+        message: 'Approval status toggled successfully',
+        updated: updatedItems,
+      };
+    } catch (e) {
+      console.log('pulse toggler error', e);
+      sendBadRequest('Something went wrong while toggling pulse');
+    }
+  }
 
-      return sendSuccess('Community questions fetched successfully', questionAnswersWithDetails);
+  async getUserCommunityQuestionAnswers(community_id: number, user_id: number) {
+    try {
+      const questionAnswers = await this.questionModel.findAll({
+        where: {
+          community_id,
+        },
+        include: [
+          {
+            model: this.userQuestionAnswerMappingModel,
+            as: 'userQuestionAnswerMapping',
+            where: {
+              user_id,
+            },
+          },
+        ],
+      });
 
+      const questionAnswersWithDetails = questionAnswers.map((question) => ({
+        question: question.question_description,
+        userAnswer: question.userQuestionAnswerMapping?.answer,
+      }));
+
+      return sendSuccess(
+        'Community questions fetched successfully',
+        questionAnswersWithDetails,
+      );
     } catch (error) {
       return sendBadRequest(error.message);
     }
   }
 
-  async joinCommunity(
-    joinCommunityDto: JoinCommunityDto,
-  ) {
+  async joinCommunity(joinCommunityDto: JoinCommunityDto) {
     try {
+      const role = await this.roleModel.findOne({
+        where: {
+          role_name: 'End-User',
+        },
+      });
 
-        const role = await this.roleModel.findOne({
-          where: {
-            role_name: 'End-User',
-          }
-        });
-      
-        const userCommunityMapping = await this.userCommunityMappingModel.create({
-          community_id: joinCommunityDto.community_id,
+      const userCommunityMapping = await this.userCommunityMappingModel.create({
+        community_id: joinCommunityDto.community_id,
+        user_id: joinCommunityDto.user_id,
+        is_approved: false,
+        role_id: role.role_id,
+      });
+
+      await this.userQuestionAnswerMappingModel.bulkCreate(
+        joinCommunityDto.questionAnswers.map((questionAnswer) => ({
+          ...questionAnswer,
+          question_id: questionAnswer.question_id,
+          answer: questionAnswer.answer,
           user_id: joinCommunityDto.user_id,
-          is_approved: false,
-          role_id: role.role_id,
-        });
-
-        await this.userQuestionAnswerMappingModel.bulkCreate(
-          joinCommunityDto.questionAnswers.map((questionAnswer) => ({
-            ...questionAnswer,
-            question_id: questionAnswer.question_id,
-            answer: questionAnswer.answer,
-            user_id: joinCommunityDto.user_id,
-          })),
-        );
+        })),
+      );
 
       return sendSuccess('Join request sent successfully', {});
     } catch (error) {

@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 import {
   IsOptional,
   IsNumber,
@@ -6,6 +7,8 @@ import {
   IsBoolean,
   IsNotEmpty,
   IsString,
+  IsArray,
+  ArrayNotEmpty,
 } from 'class-validator';
 import { ItemTypeEnum } from 'src/model/communities-item-model';
 
@@ -139,4 +142,25 @@ export class CommunityItemDto {
     example: '9876543210',
   })
   market_mobile_number?: string;
+}
+
+export class UpdateCommunityItemsDto {
+  @ApiProperty({
+    description: 'List of community item IDs to update',
+    example: [100003, 100004, 100005, 100006],
+    type: [Number],
+  })
+  @IsArray()
+  @ArrayNotEmpty()
+  @IsNumber({}, { each: true })
+  @Type(() => Number)
+  community_item_ids: number[];
+
+  @ApiProperty({
+    description: 'Type of community item',
+    enum: ItemTypeEnum,
+    example: ItemTypeEnum.PULS,
+  })
+  @IsEnum(ItemTypeEnum)
+  item_type_enum: ItemTypeEnum;
 }

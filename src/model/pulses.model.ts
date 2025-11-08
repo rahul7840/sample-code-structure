@@ -46,6 +46,12 @@ export class Pulse extends Model<Pulse> {
   })
   description: string;
 
+  @Column({
+    type: DataType.BOOLEAN,
+    defaultValue: false,
+  })
+  is_approved: Boolean;
+
   @CreatedAt
   @Column({
     type: DataType.DATE,
