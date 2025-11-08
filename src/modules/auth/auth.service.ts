@@ -25,11 +25,10 @@ export class AuthService {
     @InjectModel(UserProfileModel) private userModel: typeof UserProfileModel,
     @InjectModel(OTPModel) private otpModel: typeof OTPModel,
     private sequelize: Sequelize,
-  ) { }
+  ) {}
 
   async addManager(body: AddManagerDTO) {
     try {
-
       const user = await this.userModel.findOne({
         where: {
           email: body.email,
@@ -37,16 +36,14 @@ export class AuthService {
       });
 
       if (user && user.is_manager) {
-        return sendBadRequest('Manager with the same email or mobile number already exists');
+        return sendBadRequest(
+          'Manager with the same email or mobile number already exists',
+        );
       }
-
-
-
     } catch (err) {
       console.log('something went wrong while add manager', err);
       return sendBadRequest(err.message);
     }
-
   }
 
   async login(body: UserLoginDTO): Promise<{
@@ -120,12 +117,15 @@ export class AuthService {
         return sendBadRequest(`invalid_mobile_number`);
       }
 
-      // const user = await this.userModel.findOne({
-      //   where: {
-      //     [Op.or]: [{ mobile_number: body.mobile_number }],
-      //   },
-      //   transaction: t,
-      // });
+      const user = await this.userModel.findOne({
+        where: {
+          [Op.or]: [{ mobile_number: body.mobile_number }],
+        },
+        transaction: t,
+      });
+
+      if (user)
+        return sendBadRequest('User already registered. Please log in..');
 
       const otp = 999999;
 
@@ -270,12 +270,15 @@ export class AuthService {
       };
 
       const token: string = generateAuthToken(criteriaForJWT);
-      return sendSuccess('success', { 
-        token: token,
-        is_manager: user.is_manager,
-        is_super_admin: user.is_super_admin,
-       }, {});
-       
+      return sendSuccess(
+        'success',
+        {
+          token: token,
+          is_manager: user.is_manager,
+          is_super_admin: user.is_super_admin,
+        },
+        {},
+      );
     } catch (err) {
       console.log(err);
       sendBadRequest('failed to load');
