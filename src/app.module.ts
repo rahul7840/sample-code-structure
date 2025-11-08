@@ -24,6 +24,7 @@ import { UserModule } from './modules/user/user.module';
 import { Pulse } from './model/pulses.model';
 import { CommunityItem } from './model/communities-item-model';
 import { MarketModel } from './model/market-model';
+import { NearbyLocalityModel } from './model/nearby-locality.model';
 
 @Module({
   imports: [
@@ -61,6 +62,7 @@ import { MarketModel } from './model/market-model';
         Pulse,
         CommunityItem,
         MarketModel,
+        NearbyLocalityModel,
       ],
       synchronize: false,
       autoLoadModels: true,
