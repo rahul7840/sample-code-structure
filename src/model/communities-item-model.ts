@@ -9,9 +9,12 @@ import {
   BelongsTo,
   PrimaryKey,
   AutoIncrement,
+  HasOne,
 } from 'sequelize-typescript';
 import { UserProfileModel } from './users-model';
 import { CommunityModel } from './communities-mode';
+import { Pulse } from './pulses.model';
+import { MarketModel } from './market-model';
 
 export enum ItemTypeEnum {
   PULS = 'PULSE',
@@ -46,6 +49,11 @@ export class CommunityItem extends Model<CommunityItem> {
   })
   item_type_enum: ItemTypeEnum;
 
+  @Column({
+    type: DataType.DATE,
+  })
+  approved_date_time: Date;
+
   @ForeignKey(() => UserProfileModel)
   @Column({
     type: DataType.BIGINT,
@@ -77,4 +85,10 @@ export class CommunityItem extends Model<CommunityItem> {
 
   @BelongsTo(() => UserProfileModel)
   user: UserProfileModel;
+
+  @HasOne(() => Pulse)
+  pulse: Pulse;
+
+  @HasOne(() => MarketModel)
+  market: MarketModel;
 }

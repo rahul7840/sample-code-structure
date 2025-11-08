@@ -15,6 +15,7 @@ import { Response } from 'express';
 //Import Packages
 import * as bcrypt from 'bcryptjs';
 import * as jwt from 'jsonwebtoken';
+import { AddManagerDTO } from './dto/add-manager.dto';
 
 @Injectable()
 export class AuthService {
@@ -22,7 +23,29 @@ export class AuthService {
     @InjectModel(UserProfileModel) private userModel: typeof UserProfileModel,
     @InjectModel(OTPModel) private otpModel: typeof OTPModel,
     private sequelize: Sequelize,
-  ) {}
+  ) { }
+
+  async addManager(body: AddManagerDTO) {
+    try {
+
+      const user = await this.userModel.findOne({
+        where: {
+          email: body.email,
+        },
+      });
+
+      if(user && user.is_manager) {
+        return sendBadRequest('Manager with the same email or mobile number already exists');
+      }
+
+      
+    
+    } catch (err) {
+      console.log('something went wrong while add manager', err);
+      return sendBadRequest(err.message);
+    }
+
+  }
 
   async login(body: UserLoginDTO): Promise<{
     data: { otp_id: number };
@@ -31,7 +54,7 @@ export class AuthService {
     try {
       const user = await this.userModel.findOne({
         where: {
-          mobile_number: body.mobile_number,
+          phone_number: body.phone_number,
         },
       });
 

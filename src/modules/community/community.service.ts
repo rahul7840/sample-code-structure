@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { CommunityModel } from 'src/model/communities-mode';
-import { UserCommunityMappingModel } from 'src/model/community-mapping-model';
+import { UserCommunityMappingModel } from 'src/model/user-community-mapping-model';
 import { AddCommunityDto } from './dto/add-community.dto';
 import { sendBadRequest, sendSuccess } from 'src/utils/response.util';
 import { QuestionModel } from 'src/model/questions-model';
@@ -14,6 +14,8 @@ import { CommunityItemDto } from './dto/add-community-item.dto';
 import { CommunityItem, ItemTypeEnum } from 'src/model/communities-item-model';
 import { Pulse } from 'src/model/pulses.model';
 import { MarketModel } from 'src/model/market-model';
+import { JoinCommunityDto } from './dto/join-request.dto';
+import { RoleModel } from 'src/model/role-model';
 
 @Injectable()
 export class CommunityService {
@@ -27,6 +29,14 @@ export class CommunityService {
     @InjectModel(Pulse) private readonly pulse: typeof Pulse,
     @InjectModel(CommunityItem)
     private readonly communityItem: typeof CommunityItem,
+    @InjectModel(CommunityItem) private readonly communityItemModel: typeof CommunityItem,
+    @InjectModel(Pulse) private readonly pulseModel: typeof Pulse,
+    @InjectModel(UserCommunityMappingModel) private readonly userCommunityMappingModel: typeof UserCommunityMappingModel,
+    @InjectModel(UserProfileModel) private readonly userProfileModel: typeof UserProfileModel,
+    @InjectModel(UserQuestionAnswerMappingModel) private readonly userQuestionAnswerMappingModel: typeof UserQuestionAnswerMappingModel,
+    @InjectModel(LocalitiesModel) private readonly localitiesModel: typeof LocalitiesModel,
+    @InjectModel(CategoryModel) private readonly categoryModel: typeof CategoryModel,
+    @InjectModel(RoleModel) private readonly roleModel: typeof RoleModel,
   ) {}
 
   async addCommunity(addCommunityDto: AddCommunityDto) {
@@ -100,6 +110,158 @@ export class CommunityService {
     } catch (e) {
       console.log(e);
       sendBadRequest('something went wrong ');
+    }
+  }
+
+  async getCommunityAdminDetails(
+    type: string,
+    community_id: number,
+  ) {
+    try {
+      
+        const communityItems = await this.communityItemModel.findAll({
+          where: {
+            community_id,
+            item_type_enum: type,
+          },
+          include: [
+            {
+                model: this.pulseModel,
+                as: 'pulse',
+            },
+            {
+                model: this.marketModel,
+                as: 'market',
+            }
+          ]
+        });
+
+        return sendSuccess('Community items fetched successfully', communityItems);
+
+    } catch (error) {
+        return sendBadRequest(error.message);
+    }
+  }
+
+  async getCommunityUsers(
+    community_id: number,
+  ) {
+    try {
+      const communityUsers = await this.userCommunityMappingModel.findAll({
+        where: {
+          community_id,
+        },
+        include: [
+          {
+            model: this.userProfileModel,
+            as: 'userProfile',
+          }
+        ]
+      });
+
+      const communityUsersWithDetails = communityUsers.map((user) => ({
+        ...user.userProfile.toJSON(),
+      }));
+
+      return sendSuccess('Community users fetched successfully', communityUsersWithDetails);
+
+    } catch (error) {
+      return sendBadRequest(error.message);
+    }
+  }
+
+  async getJoinRequestDetails(
+    community_id: number,
+  ) {
+    try {
+
+      const joinRequests = await this.userCommunityMappingModel.findAll({
+        where: {
+          community_id,
+          is_approved: false,
+        },
+        include: [
+          {
+            model: this.userProfileModel,
+            as: 'userProfile',
+          },
+        ]
+      });
+
+      const joinRequestsWithDetails = joinRequests.map((request) => ({
+        ...request.userProfile.toJSON(),
+      }));
+
+      return sendSuccess('Join requests fetched successfully', joinRequestsWithDetails);
+
+    } catch (error) {
+      return sendBadRequest(error.message);
+    }
+  }
+
+  async getUserCommunityQuestionAnswers(
+    community_id: number,
+    user_id: number,
+  ) {
+    try {
+      
+        const questionAnswers = await this.questionModel.findAll({
+          where: {
+            community_id,
+          },
+          include: [
+            {
+              model: this.userQuestionAnswerMappingModel,
+              as: 'userQuestionAnswerMapping',
+              where: {
+                user_id,
+              }
+            }
+          ]
+        });
+
+        const questionAnswersWithDetails = questionAnswers.map((question) => ({
+          question: question.question_description,
+          userAnswer: question.userQuestionAnswerMapping?.answer,
+        }));
+
+      return sendSuccess('Community questions fetched successfully', questionAnswersWithDetails);
+
+    } catch (error) {
+      return sendBadRequest(error.message);
+    }
+  }
+
+  async joinCommunity(
+    joinCommunityDto: JoinCommunityDto,
+  ) {
+    try {
+
+        const role = await this.roleModel.findOne({
+          where: {
+            role_name: 'End-User',
+          }
+        });
+      
+        const userCommunityMapping = await this.userCommunityMappingModel.create({
+          community_id: joinCommunityDto.community_id,
+          user_id: joinCommunityDto.user_id,
+          is_approved: false,
+          role_id: role.role_id,
+        });
+
+        await this.userQuestionAnswerMappingModel.bulkCreate(
+          joinCommunityDto.questionAnswers.map((questionAnswer) => ({
+            ...questionAnswer,
+            question_id: questionAnswer.question_id,
+            answer: questionAnswer.answer,
+            user_id: joinCommunityDto.user_id,
+          })),
+        );
+
+      return sendSuccess('Join request sent successfully', {});
+    } catch (error) {
+      return sendBadRequest(error.message);
     }
   }
 }

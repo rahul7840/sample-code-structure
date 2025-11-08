@@ -4,7 +4,11 @@ import {
   PrimaryKey,
   Table,
   Model,
+  ForeignKey,
+  BelongsTo,
 } from 'sequelize-typescript';
+import { QuestionModel } from './questions-model';
+import { UserProfileModel } from './users-model';
 
 @Table({
   schema: 'public',
@@ -20,12 +24,14 @@ export class UserQuestionAnswerMappingModel extends Model {
   })
   user_question_answer_mapping_id: number;
 
+  @ForeignKey(() => QuestionModel)
   @Column({
     type: DataType.BIGINT,
     allowNull: true,
   })
   question_id: number;
 
+  @ForeignKey(() => UserProfileModel)
   @Column({
     type: DataType.BIGINT,
     allowNull: true,
@@ -49,4 +55,10 @@ export class UserQuestionAnswerMappingModel extends Model {
     allowNull: true,
   })
   updated_at: Date;
+
+  @BelongsTo(() => QuestionModel)
+  question: QuestionModel;
+
+  @BelongsTo(() => UserProfileModel)
+  user: UserProfileModel;
 }

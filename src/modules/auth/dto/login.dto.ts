@@ -9,7 +9,7 @@ export class UserLoginDTO {
     example: '7041444444',
     description: 'Mobile Number',
   })
-  mobile_number: string;
+  phone_number: string;
 }
 
 export class OtpVerificationDTO {

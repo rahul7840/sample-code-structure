@@ -4,7 +4,11 @@ import {
   PrimaryKey,
   Table,
   Model,
+  ForeignKey,
+  BelongsTo,
 } from 'sequelize-typescript';
+import { UserProfileModel } from './users-model';
+import { CommunityModel } from './communities-mode';
 
 @Table({
   schema: 'public',
@@ -20,12 +24,14 @@ export class UserCommunityMappingModel extends Model {
   })
   mapping_id: number;
 
+  @ForeignKey(() => CommunityModel)
   @Column({
     type: DataType.BIGINT,
     allowNull: true,
   })
   community_id: number;
 
+  @ForeignKey(() => UserProfileModel)
   @Column({
     type: DataType.BIGINT,
     allowNull: true,
@@ -55,4 +61,10 @@ export class UserCommunityMappingModel extends Model {
     allowNull: true,
   })
   updated_at: Date;
+
+  @BelongsTo(() => CommunityModel)
+  community: CommunityModel;
+
+  @BelongsTo(() => UserProfileModel)
+  userProfile: UserProfileModel;
 }

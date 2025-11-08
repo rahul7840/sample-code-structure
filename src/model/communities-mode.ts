@@ -4,7 +4,9 @@ import {
   PrimaryKey,
   Table,
   Model,
+  HasMany,
 } from 'sequelize-typescript';
+import { QuestionModel } from './questions-model';
 
 @Table({
   schema: 'public',
@@ -63,6 +65,20 @@ export class CommunityModel extends Model {
   community_description: string;
 
   @Column({
+    type: DataType.BIGINT,
+    allowNull: true,
+    defaultValue: 0,
+  })
+  member_count: number;
+
+  @Column({
+    type: DataType.BIGINT,
+    allowNull: true,
+    defaultValue: 0,
+  })
+  post_count: number;
+
+  @Column({
     type: DataType.DATE,
     allowNull: true,
   })
@@ -73,4 +89,7 @@ export class CommunityModel extends Model {
     allowNull: true,
   })
   updated_at: Date;
+
+  @HasMany(() => QuestionModel)
+  questions: QuestionModel[];
 }
