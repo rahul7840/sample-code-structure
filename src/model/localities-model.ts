@@ -1,15 +1,22 @@
-import { Column, DataType, PrimaryKey, Table, Model } from "sequelize-typescript";
+import {
+  Column,
+  DataType,
+  PrimaryKey,
+  Table,
+  Model,
+} from 'sequelize-typescript';
 
 @Table({
   schema: 'public',
   tableName: 'localities', // ← change this to your actual table name
-  timestamps: true,
+  timestamps: false,
 })
-export class localitiesModel extends Model {
+export class LocalitiesModel extends Model {
   @PrimaryKey
   @Column({
     type: DataType.INTEGER,
     allowNull: false,
+    autoIncrement: true,
   })
   locality_id: number;
 

@@ -1,4 +1,10 @@
-import { Column, DataType, PrimaryKey, Table, Model } from "sequelize-typescript";
+import {
+  Column,
+  DataType,
+  PrimaryKey,
+  Table,
+  Model,
+} from 'sequelize-typescript';
 
 @Table({
   schema: 'public',
@@ -10,6 +16,7 @@ export class CommunityModel extends Model {
   @Column({
     type: DataType.BIGINT,
     allowNull: false,
+    autoIncrement: true,
   })
   community_id: number;
 
@@ -54,7 +61,6 @@ export class CommunityModel extends Model {
     allowNull: true,
   })
   community_description: string;
-  s;
 
   @Column({
     type: DataType.DATE,

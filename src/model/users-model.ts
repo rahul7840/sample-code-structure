@@ -4,8 +4,6 @@ import {
   PrimaryKey,
   Column,
   DataType,
-  ForeignKey,
-  BelongsTo,
   Default,
   AutoIncrement,
 } from 'sequelize-typescript';
@@ -23,6 +21,7 @@ export class UserProfileModel extends Model {
   @Column({
     type: DataType.BIGINT,
     allowNull: false,
+    autoIncrement: true,
   })
   user_id: bigint;
 

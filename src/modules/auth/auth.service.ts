@@ -178,7 +178,7 @@ export class AuthService {
       if (!user) {
         return sendBadRequest(`user not found`);
       }
-  
+
       await this.otpModel.update(
         {
           is_verified: true,

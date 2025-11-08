@@ -1,15 +1,22 @@
-import { Column, DataType, PrimaryKey, Table, Model } from "sequelize-typescript";
+import {
+  Column,
+  DataType,
+  PrimaryKey,
+  Table,
+  Model,
+} from 'sequelize-typescript';
 
 @Table({
   schema: 'public',
   tableName: 'media',
-  timestamps: true, // since you have created_at & updated_at
+  timestamps: false, // since you have created_at & updated_at
 })
 export class MediaModel extends Model {
   @PrimaryKey
   @Column({
     type: DataType.BIGINT,
     allowNull: false,
+    autoIncrement: true,
   })
   media_id: number;
 

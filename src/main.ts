@@ -9,7 +9,7 @@ async function bootstrap() {
     .setTitle('Community Platform API')
     .setDescription('API documentation for the Community Platform module')
     .setVersion('1.0')
-    .addBearerAuth() 
+    .addBearerAuth()
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

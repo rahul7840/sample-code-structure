@@ -9,8 +9,6 @@ import {
 } from 'sequelize-typescript';
 import { UserProfileModel } from './users-model';
 
-
-
 @Table({ schema: 'public', tableName: 'otp', timestamps: true })
 export class OTPModel extends Model {
   @PrimaryKey
@@ -33,7 +31,6 @@ export class OTPModel extends Model {
     allowNull: false,
   })
   otp: string;
-
 
   @Column({
     type: DataType.BOOLEAN,
@@ -72,8 +69,6 @@ export class OTPModel extends Model {
   })
   updated_at: Date;
 
-
   @BelongsTo(() => UserProfileModel)
   user: UserProfileModel;
 }
-

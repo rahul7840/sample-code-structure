@@ -7,15 +7,13 @@ import { CategoryModel } from './model/category-model';
 import { CommunityModel } from './model/communities-mode';
 import { UserCommunityMappingModel } from './model/community-mapping-model';
 import { JobTitleModel } from './model/job-title-model';
-import { localitiesModel } from './model/localities-model';
+import { LocalitiesModel } from './model/localities-model';
 import { MediaModel } from './model/media-model';
 import { UserQuestionAnswerMappingModel } from './model/que-ans-mapping-model';
 import { QuestionModel } from './model/questions-model';
 import { RoleModel } from './model/role-model';
 import { UserProfileModel } from './model/users-model';
 import { CategoryModule } from './modules/category/category.module';
-import { AuthModule } from './modules/auth/auth.module';
-import { FilesModule } from './modules/files/files.module';
 import { OTPModel } from './model/otp.model';
 
 @Module({
@@ -44,13 +42,13 @@ import { OTPModel } from './model/otp.model';
         CategoryModel,
         UserCommunityMappingModel,
         JobTitleModel,
-        localitiesModel,
+        LocalitiesModel,
         MediaModel,
         UserQuestionAnswerMappingModel,
         QuestionModel,
         RoleModel,
         UserProfileModel,
-        OTPModel
+        OTPModel,
       ],
       synchronize: false,
       autoLoadModels: true,
@@ -70,8 +68,6 @@ import { OTPModel } from './model/otp.model';
       },
     }),
     CategoryModule,
-    AuthModule,
-    FilesModule
   ],
   controllers: [AppController],
   providers: [AppService],
