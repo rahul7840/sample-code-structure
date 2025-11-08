@@ -7,25 +7,26 @@ import {
   ForeignKey,
   BelongsTo,
   Default,
+  AutoIncrement,
 } from 'sequelize-typescript';
 import { JobTitleModel } from './job-title-model';
 // import { UserModel } from './user.model';
 
 @Table({
   schema: 'public',
-  tableName: 'user_profiles',
+  tableName: 'users',
   timestamps: true,
 })
 export class UserProfileModel extends Model {
   @PrimaryKey
-//   @ForeignKey(() => UserModel)
+  @AutoIncrement
   @Column({
     type: DataType.BIGINT,
     allowNull: false,
   })
   user_id: bigint;
 
-//   @ForeignKey(() => JobTitleModel)
+  //   @ForeignKey(() => JobTitleModel)
   @Column({
     type: DataType.BIGINT,
   })
@@ -88,10 +89,10 @@ export class UserProfileModel extends Model {
   })
   updated_at: Date;
 
-//   // 🔗 Associations
-//   @BelongsTo(() => UserModel)
-//   user: UserModel;
+  //   // 🔗 Associations
+  //   @BelongsTo(() => UserModel)
+  //   user: UserModel;
 
-//   @BelongsTo(() => JobTitleModel)
-//   job_title: JobTitleModel;
+  //   @BelongsTo(() => JobTitleModel)
+  //   job_title: JobTitleModel;
 }

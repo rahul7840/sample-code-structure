@@ -14,6 +14,9 @@ import { QuestionModel } from './model/questions-model';
 import { RoleModel } from './model/role-model';
 import { UserProfileModel } from './model/users-model';
 import { CategoryModule } from './modules/category/category.module';
+import { AuthModule } from './modules/auth/auth.module';
+import { FilesModule } from './modules/files/files.module';
+import { OTPModel } from './model/otp.model';
 
 @Module({
   imports: [
@@ -47,6 +50,7 @@ import { CategoryModule } from './modules/category/category.module';
         QuestionModel,
         RoleModel,
         UserProfileModel,
+        OTPModel
       ],
       synchronize: false,
       autoLoadModels: true,
@@ -65,7 +69,9 @@ import { CategoryModule } from './modules/category/category.module';
         maxUses: 7500,
       },
     }),
-    CategoryModule
+    CategoryModule,
+    AuthModule,
+    FilesModule
   ],
   controllers: [AppController],
   providers: [AppService],
