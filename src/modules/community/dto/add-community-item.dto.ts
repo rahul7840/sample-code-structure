@@ -15,7 +15,7 @@ export class CommunityItemDto {
   @ApiProperty({
     type: Number,
     description: 'ID of the community this item belongs to',
-    example: 10,
+    example: 100000,
   })
   community_id: number;
 
@@ -32,7 +32,7 @@ export class CommunityItemDto {
   @ApiProperty({
     type: Number,
     description: 'ID of the user who created the item',
-    example: 1001,
+    example: 100000,
   })
   user_id: number;
 
@@ -139,13 +139,4 @@ export class CommunityItemDto {
     example: '9876543210',
   })
   market_mobile_number?: string;
-
-  @IsOptional()
-  @IsNumber()
-  @ApiProperty({
-    type: Number,
-    description: 'Linked community item ID for this market post',
-    example: 42,
-  })
-  market_community_item_id?: number;
 }

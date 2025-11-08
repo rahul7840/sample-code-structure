@@ -73,6 +73,7 @@ export class CommunityService {
         finalResponce = await this.pulse.create({
           title: dto.pulse_title,
           description: dto.pulse_description,
+          community_item_id : CreateIntoCommunity.community_item_id
         });
       } else if (
         CreateIntoCommunity &&
@@ -87,7 +88,7 @@ export class CommunityService {
           amount: dto.market_amount ?? null,
           name: dto.market_name ?? null,
           mobile_number: dto.market_mobile_number ?? null,
-          community_item_id: dto.market_community_item_id,
+          community_item_id: CreateIntoCommunity.community_item_id,
         });
       }
       const responce = {
@@ -95,7 +96,7 @@ export class CommunityService {
         community_item: finalResponce,
       };
 
-      sendSuccess('success', responce);
+      return sendSuccess('success', responce);
     } catch (e) {
       console.log(e);
       sendBadRequest('something went wrong ');

@@ -14,13 +14,13 @@ import { UserProfileModel } from './users-model';
 import { CommunityModel } from './communities-mode';
 
 export enum ItemTypeEnum {
-  PULS = 'PULS',
+  PULS = 'PULSE',
   EVENT = 'EVENT',
   MARKET = 'MARKET',
 }
 
 @Table({
-  tableName: 'community_item',
+  tableName: 'community_items',
   timestamps: true,
 })
 export class CommunityItem extends Model<CommunityItem> {

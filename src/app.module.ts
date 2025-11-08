@@ -18,6 +18,9 @@ import { OTPModel } from './model/otp.model';
 import { MarketModel } from './model/market-model';
 import { Pulse } from './model/pulses.model';
 import { CommunityItem } from './model/communities-item-model';
+import { CommunityModule } from './modules/community/community.module';
+import { JobTitlesModule } from './modules/job-titles/job-titles.module';
+import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
   imports: [
@@ -73,7 +76,10 @@ import { CommunityItem } from './model/communities-item-model';
         maxUses: 7500,
       },
     }),
+    AuthModule,
     CategoryModule,
+    CommunityModule,
+    JobTitlesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

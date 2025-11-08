@@ -29,3 +29,4 @@ import { MarketModel } from 'src/model/market-model';
   controllers: [CommunityController],
 })
 export class CommunityModule {}
+
