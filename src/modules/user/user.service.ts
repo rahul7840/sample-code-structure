@@ -32,4 +32,18 @@ export class UserService {
             return sendBadRequest(error.message);
         }
     }
+
+    async getManagers() {
+        try {
+            const managers = await this.userProfileModel.findAll({
+                where: {
+                    is_manager: true
+                },
+            });
+
+            return sendSuccess('Managers', managers);
+        } catch (error) {
+            return sendBadRequest(error.message);
+        }
+    }
 }

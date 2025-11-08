@@ -9,13 +9,15 @@ import { OTPModel } from 'src/model/otp.model';
 import { SignUpDTO } from './dto/signup-dto';
 import { Sequelize } from 'sequelize-typescript';
 import { Response } from 'express';
+// import * as encription from 'src/modules/utils/encryption.utlis';
 
-// import * as encryption from 'src/modules/utils/encryption.utlis';
+import * as encryption from 'src/modules/utils/encryption.utlis';
 
 //Import Packages
 import * as bcrypt from 'bcryptjs';
 import * as jwt from 'jsonwebtoken';
 import { AddManagerDTO } from './dto/add-manager.dto';
+import { AdminLoginDTO } from './dto/admin-login.dto';
 
 @Injectable()
 export class AuthService {
@@ -34,12 +36,12 @@ export class AuthService {
         },
       });
 
-      if(user && user.is_manager) {
+      if (user && user.is_manager) {
         return sendBadRequest('Manager with the same email or mobile number already exists');
       }
 
-      
-    
+
+
     } catch (err) {
       console.log('something went wrong while add manager', err);
       return sendBadRequest(err.message);
@@ -133,8 +135,8 @@ export class AuthService {
           company_name: body.company_name,
           phone_number: body.mobile_number,
           email: body.email,
-          interested_categories:body.interested_categories.join(',') ?? null,
-          interested_localities:body.interested_localities.join(',') ?? null,
+          interested_categories: body.interested_categories.join(',') ?? null,
+          interested_localities: body.interested_localities.join(',') ?? null,
           job_title_id: body.job_title_id ?? null,
         },
         { transaction: t },
@@ -235,6 +237,46 @@ export class AuthService {
       return sendSuccess('success', data, {});
     } catch (err) {
       await t.rollback();
+      console.log(err);
+      sendBadRequest('failed to load');
+    }
+  }
+
+  async adminLogin(body: AdminLoginDTO) {
+    try {
+      const user = await this.userModel.findOne({
+        where: {
+          email: body.email,
+        },
+      });
+
+      if (!user) {
+        return sendBadRequest(`user not found`);
+      }
+
+      if (user.is_super_admin !== true) {
+        return sendBadRequest(`User is not an admin`);
+      }
+
+      // Compare the provided password with the stored hashed password
+      const passwordMatch = await bcrypt.compare(body.password, user.password);
+      if (!passwordMatch) {
+        return sendBadRequest(`password does not match`);
+      }
+
+      const criteriaForJWT = {
+        id: user.user_id,
+        date: new Date(),
+      };
+
+      const token: string = generateAuthToken(criteriaForJWT);
+      return sendSuccess('success', { 
+        token: token,
+        is_manager: user.is_manager,
+        is_super_admin: user.is_super_admin,
+       }, {});
+       
+    } catch (err) {
       console.log(err);
       sendBadRequest('failed to load');
     }

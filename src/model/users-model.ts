@@ -69,6 +69,19 @@ export class UserProfileModel extends Model {
   name: string;
 
   @Column({
+    type: DataType.BOOLEAN,
+    allowNull: false,
+    defaultValue: false,
+  })
+  is_super_admin: boolean;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+  })
+  password: string;
+
+  @Column({
     type: DataType.STRING,
     allowNull: true,
   })

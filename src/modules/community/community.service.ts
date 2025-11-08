@@ -43,17 +43,10 @@ export class CommunityService {
     @InjectModel(CategoryModel)
     private readonly categoryModel: typeof CategoryModel,
     @InjectModel(RoleModel) private readonly roleModel: typeof RoleModel,
-  ) {}
+  ) { }
 
   async addCommunity(addCommunityDto: AddCommunityDto) {
     try {
-      const media = await this.mediaModel.create({
-        size: addCommunityDto.banner_image.size,
-        file_path: addCommunityDto.banner_image.file_path,
-        original_file_name: addCommunityDto.banner_image.original_file_name,
-        mimetype: addCommunityDto.banner_image.mimetype,
-        file_name: addCommunityDto.banner_image.file_name,
-      });
 
       const community = await this.communityModel.create({
         locality_id: addCommunityDto.locality_id,
@@ -62,7 +55,7 @@ export class CommunityService {
         community_description: addCommunityDto.community_description,
         status_enum: addCommunityDto.status_enum,
         manager_id: addCommunityDto.manager_id,
-        media_id: media.media_id,
+        media_id: addCommunityDto.banner_image,
       });
 
       await this.questionModel.bulkCreate(
@@ -71,6 +64,17 @@ export class CommunityService {
           community_id: community.community_id,
         })),
       );
+
+      await this.userCommunityMappingModel.create({
+        user_id: addCommunityDto.manager_id,
+        community_id: community.community_id,
+        role_id: await this.roleModel.findOne({
+          where: {
+            role_name: 'Community Manager',
+          },
+        }).then((role) => role.role_id),
+        is_approved: true,
+      });
 
       return sendSuccess('Community added successfully', {});
     } catch (error) {
@@ -306,8 +310,91 @@ export class CommunityService {
           user_id: joinCommunityDto.user_id,
         })),
       );
+      await this.userQuestionAnswerMappingModel.bulkCreate(
+        joinCommunityDto.questionAnswers.map((questionAnswer) => ({
+          ...questionAnswer,
+          question_id: questionAnswer.question_id,
+          answer: questionAnswer.answer,
+          user_id: joinCommunityDto.user_id,
+        })),
+      );
 
       return sendSuccess('Join request sent successfully', {});
+    } catch (error) {
+      return sendBadRequest(error.message);
+    }
+  }
+
+  async getCommunityAdminListing(user_id: number) {
+    try {
+
+      const user = await this.userProfileModel.findOne({
+        where: {
+          user_id,
+        },
+        attributes: ['is_manager'],
+      });
+
+      if (!user.is_manager && user.is_super_admin) {
+
+        const communities = await this.communityModel.findAll({
+          where: {
+          },
+        });
+
+        let totalMembers: number = 0, totalCommunities: number = 0, totalPosts: number = 0;
+
+        for (const community of communities) {
+          totalMembers += Number(community.member_count);
+          totalCommunities++;
+          totalPosts += Number(community.post_count);
+        }
+
+        return sendSuccess('Community admin listing fetched successfully', communities, {
+          totalMembers,
+          totalCommunities,
+          totalPosts,
+        });
+      } else {
+        const communities = await this.userCommunityMappingModel.findAll({
+          where: {
+            user_id,
+          },
+          include: [
+            {
+              model: this.communityModel,
+              as: 'community',
+            },
+            {
+              model: this.roleModel,
+              as: 'role',
+              where: {
+                role_name: 'Community Manager',
+              },
+              required: true,
+            }
+          ]
+        });
+
+        const communitiesWithDetails = communities.map((community) => ({
+          ...community.community.toJSON(),
+        }));
+
+        let totalMembers: number = 0;
+        let totalPosts: number = 0;
+
+        for (const community of communitiesWithDetails) {
+          totalMembers += Number(community.member_count);
+          totalPosts += Number(community.post_count);
+        }
+
+        return sendSuccess('Community admin listing fetched successfully', communitiesWithDetails, {
+          totalMembers,
+          totalPosts,
+        });
+      }
+
+
     } catch (error) {
       return sendBadRequest(error.message);
     }

@@ -31,20 +31,11 @@ export class UserAuthGuard extends AuthGuard('Authorization') {
     try {
       const decoded: any = this.findByToken(token);
       const user = await this.userModel.findOne({
-        where: { user_id: decoded.id, is_blocked: false },
+        where: { user_id: decoded.id },
       });
 
       if (!user) {
         return false;
-      }
-
-      if (new Date(new Date()).getTime() !== Date.now()) {
-        await user
-          .update({ last_active: Date.now() })
-          .then(() => {})
-          .catch((err) => {
-            console.error('Error updating user last_active:', err);
-          });
       }
 
       return true;

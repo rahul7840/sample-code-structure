@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { CommunityService } from './community.service';
 import { AddCommunityDto } from './dto/add-community.dto';
 import { ApiTags } from '@nestjs/swagger';
@@ -9,9 +17,11 @@ import {
 import { JoinCommunityDto } from './dto/join-request.dto';
 import { ItemTypeEnum } from 'src/model/communities-item-model';
 import { UserId } from '../utils/decorators/user-id.decorator';
+import { UserAuthGuard } from '../utils/guards/auth.guard';
 
 @Controller('community')
 @ApiTags('community')
+@UseGuards(UserAuthGuard)
 export class CommunityController {
   constructor(private readonly communityService: CommunityService) {}
 
@@ -23,9 +33,15 @@ export class CommunityController {
   async communityItem(@Body() dto: CommunityItemDto) {
     return await this.communityService.addCommunityItems(dto);
   }
+
   @Post('join-request')
   async joinCommunity(@Body() joinCommunityDto: JoinCommunityDto) {
     return this.communityService.joinCommunity(joinCommunityDto);
+  }
+
+  @Get('admin-listing')
+  async getCommunityAdminListing(@UserId() user_id: number) {
+    return this.communityService.getCommunityAdminListing(user_id);
   }
 
   @Get('admin-details/:community_id')
@@ -45,6 +61,7 @@ export class CommunityController {
   async getCommunityDetails(@Param('community_id') community_id: number) {
     return this.communityService.getJoinRequestDetails(community_id);
   }
+  
 
   @Post('community-item/approve-toggle')
   async pulseToggler(

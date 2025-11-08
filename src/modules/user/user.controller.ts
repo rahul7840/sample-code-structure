@@ -12,4 +12,17 @@ export class UserController {
     ) {
         return this.userService.isNormalUser(isNormalUserDto);
     }
+
+    @Get('manager')
+    async getManagers(
+    ) {
+        return this.userService.getManagers();
+    }
+
+    // @Get('profile')
+    // async getProfile(
+    //     @
+    // ) {
+    //     return this.userService.getProfile();
+    // }
 }
