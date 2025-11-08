@@ -6,7 +6,7 @@ import {
   PrimaryKey,
   Table,
 } from 'sequelize-typescript';
-import { CommunityItemsModel } from './community_items.model'; // assuming this model exists
+import { CommunityItem } from './communities-item-model';
 
 @Table({
   schema: 'public',
@@ -76,7 +76,7 @@ export class MarketModel extends Model {
   })
   mobile_number: string;
 
-  @ForeignKey(() => CommunityItemsModel)
+  @ForeignKey(() => CommunityItem)
   @Column({
     type: DataType.INTEGER,
     allowNull: true,
