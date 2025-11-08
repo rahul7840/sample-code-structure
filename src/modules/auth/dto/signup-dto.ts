@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class SignUpDTO {
   @IsNotEmpty()
@@ -37,5 +37,13 @@ export class SignUpDTO {
     example: '1234567890',
   })
   mobile_number: string;
+
+  @IsOptional()
+  @ApiProperty({
+    type: String,
+    description: 'Mobile number of the user',
+    example: 1111,
+  })
+  job_title_id?: number;
 
 }

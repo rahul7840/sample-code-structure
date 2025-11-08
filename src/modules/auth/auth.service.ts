@@ -3,7 +3,7 @@ import { OtpVerificationDTO, UserLoginDTO } from './dto/login.dto';
 import { UserProfileModel } from 'src/model/users-model';
 import { InjectModel } from '@nestjs/sequelize';
 import { sendBadRequest, sendSuccess } from 'src/utils/response.util';
-import { Op, QueryTypes, Transaction } from 'sequelize';
+import { Op, QueryTypes, Transaction, where } from 'sequelize';
 import * as moment from 'moment';
 import { OTPModel } from 'src/model/otp.model';
 import { SignUpDTO } from './dto/signup-dto';
@@ -110,10 +110,11 @@ export class AuthService {
           company_name: body.company_name,
           phone_number: body.mobile_number,
           email: body.email,
+          job_title_id: body.job_title_id ?? null,
         },
         { transaction: t },
       );
-      console.log(`created`,JSON.stringify(newUser,null,2))
+      console.log(`created`, JSON.stringify(newUser, null, 2));
       // await newUser.update(
       //   {
       //     created_by: newUser.user_id,
@@ -129,6 +130,7 @@ export class AuthService {
           valid_till: moment().add(5, 'minutes').toDate(),
           created_by: newUser.user_id,
           updated_by: newUser.user_id,
+          is_verified: false,
         },
         { transaction: t },
       );
@@ -174,13 +176,25 @@ export class AuthService {
       if (!user) {
         return sendBadRequest(`user not found`);
       }
+  
+      await this.otpModel.update(
+        {
+          is_verified: true,
+        },
+        {
+          where: {
+            created_for: user.user_id,
+          },
+          transaction: t,
+        },
+      );
 
       const criteriaForJWT = {
         id: user.user_id,
         date: new Date(),
       };
 
-      console.log('process.env.jwtSecret', process.env.jwtSecret);
+      console.log('process.env.jwtSecret', process.env.JWT_SECRET);
 
       const token: string = await generateAuthToken(criteriaForJWT);
       res.cookie('Authorization', token, {});
