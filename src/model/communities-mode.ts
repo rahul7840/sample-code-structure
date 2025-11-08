@@ -41,7 +41,7 @@ export class CommunityModel extends Model {
   category_id: number;
 
   @Column({
-    type: DataType.ENUM('active', 'inactive', 'pending'), // ← replace with your actual enum values
+    type: DataType.ENUM('ACTIVE', 'INACTIVE', 'PENDING'), // ← replace with your actual enum values
     allowNull: true,
   })
   status_enum: string;

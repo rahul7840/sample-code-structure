@@ -9,6 +9,7 @@ import {
 } from 'sequelize-typescript';
 import { UserProfileModel } from './users-model';
 import { CommunityModel } from './communities-mode';
+import { RoleModel } from './role-model';
 
 @Table({
   schema: 'public',
@@ -38,6 +39,7 @@ export class UserCommunityMappingModel extends Model {
   })
   user_id: number;
 
+  @ForeignKey(() => RoleModel)
   @Column({
     type: DataType.INTEGER,
     allowNull: true,
@@ -61,6 +63,9 @@ export class UserCommunityMappingModel extends Model {
     allowNull: true,
   })
   updated_at: Date;
+
+  @BelongsTo(() => RoleModel)
+  role: RoleModel;
 
   @BelongsTo(() => CommunityModel)
   community: CommunityModel;

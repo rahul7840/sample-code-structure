@@ -25,6 +25,7 @@ import { Pulse } from './model/pulses.model';
 import { CommunityItem } from './model/communities-item-model';
 import { MarketModel } from './model/market-model';
 import { NearbyLocalityModel } from './model/nearby-locality.model';
+import { CommunityListingModule } from './modules/community-listing/community-listing.module';
 
 @Module({
   imports: [
@@ -91,6 +92,7 @@ import { NearbyLocalityModel } from './model/nearby-locality.model';
     JobTitlesModule,
     FilesModule,
     UserModule,
+    CommunityListingModule
   ],
   controllers: [AppController],
   providers: [AppService],

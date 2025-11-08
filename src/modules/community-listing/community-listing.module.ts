@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
-import { CommunityService } from './community.service';
-import { CommunityController } from './community.controller';
-import { SequelizeModule } from '@nestjs/sequelize';
+import { CommunityListingService } from './community-listing.service';
+import { CommunityListingController } from './community-listing.controller';
 import { QuestionModel } from 'src/model/questions-model';
 import { UserCommunityMappingModel } from 'src/model/user-community-mapping-model';
 import { CommunityModel } from 'src/model/communities-mode';
@@ -14,14 +13,12 @@ import { CommunityItem } from 'src/model/communities-item-model';
 import { Pulse } from 'src/model/pulses.model';
 import { MarketModel } from 'src/model/market-model';
 import { RoleModel } from 'src/model/role-model';
-import { JobTitleModel } from 'src/model/job-title-model';
+
+import { SequelizeModule } from '@nestjs/sequelize';
 
 @Module({
-  imports: [
-    SequelizeModule.forFeature([QuestionModel, CommunityModel, MediaModel, CommunityItem, Pulse, UserCommunityMappingModel, UserQuestionAnswerMappingModel, LocalitiesModel, CategoryModel, UserProfileModel, MarketModel, RoleModel, JobTitleModel]),
-  ],
-  providers: [CommunityService],
-  controllers: [CommunityController],
+  imports: [SequelizeModule.forFeature([QuestionModel, CommunityModel, MediaModel, CommunityItem, Pulse, UserCommunityMappingModel, UserQuestionAnswerMappingModel, LocalitiesModel, CategoryModel, UserProfileModel, MarketModel, RoleModel]),],
+  providers: [CommunityListingService],
+  controllers: [CommunityListingController]
 })
-export class CommunityModule {}
-
+export class CommunityListingModule {}

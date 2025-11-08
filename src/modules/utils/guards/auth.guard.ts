@@ -22,14 +22,21 @@ export class UserAuthGuard extends AuthGuard('Authorization') {
     const tokenFromHeader = request.headers?.authorization;
     const tokenFromCookie = request.cookies?.Authorization;
 
-    const token = tokenFromCookie || tokenFromHeader;
+    let token = tokenFromCookie || tokenFromHeader;
+
+    console.log("token in authguard: ", token);
+
+    token = token.replace("Bearer ", "");
 
     if (!token) {
       return false;
     }
 
     try {
-      const decoded: any = this.findByToken(token);
+      const decoded: any = await this.findByToken(token);
+
+      console.log("decoded: ", decoded);
+
       const user = await this.userModel.findOne({
         where: { user_id: decoded.id },
       });
@@ -40,10 +47,11 @@ export class UserAuthGuard extends AuthGuard('Authorization') {
 
       return true;
     } catch (error) {
+      console.log("error: ", error);
       return false;
     }
   }
   async findByToken(token: string) {
-    jwt.verify(token, process.env.JWT_SECRET);
+    return jwt.verify(token, process.env.JWT_SECRET);
   }
 }

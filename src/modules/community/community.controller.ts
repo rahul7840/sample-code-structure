@@ -44,6 +44,14 @@ export class CommunityController {
     return this.communityService.getCommunityAdminListing(user_id);
   }
 
+  @Get('user-question-answers')
+  async getUserCommunityQuestionAnswers(
+    @Query('community_id') community_id: number,
+    @Query('user_id') user_id: number,
+  ) {
+    return this.communityService.getUserCommunityQuestionAnswers(community_id, user_id);
+  }
+
   @Get('admin-details/:community_id')
   async getCommunityList(
     @Query('type') type: string,
