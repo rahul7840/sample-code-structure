@@ -13,6 +13,7 @@ import { UserQuestionAnswerMappingModel } from './model/que-ans-mapping-model';
 import { QuestionModel } from './model/questions-model';
 import { RoleModel } from './model/role-model';
 import { UserProfileModel } from './model/users-model';
+import { CategoryModule } from './modules/category/category.module';
 
 @Module({
   imports: [
@@ -64,6 +65,7 @@ import { UserProfileModel } from './model/users-model';
         maxUses: 7500,
       },
     }),
+    CategoryModule
   ],
   controllers: [AppController],
   providers: [AppService],
