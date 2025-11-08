@@ -7,15 +7,16 @@ import {
   CreatedAt,
   UpdatedAt,
   BelongsTo,
+  PrimaryKey,
+  AutoIncrement,
 } from 'sequelize-typescript';
 import { UserProfileModel } from './users-model';
 import { CommunityModel } from './communities-mode';
 
 export enum ItemTypeEnum {
-  POST = 'POST',
+  PULS = 'PULS',
   EVENT = 'EVENT',
-  PRODUCT = 'PRODUCT',
-  // 👆 Add more as per your DB enum definition
+  MARKET = 'MARKET',
 }
 
 @Table({
@@ -23,6 +24,8 @@ export enum ItemTypeEnum {
   timestamps: true,
 })
 export class CommunityItem extends Model<CommunityItem> {
+  @PrimaryKey
+  @AutoIncrement
   @Column({
     type: DataType.INTEGER,
     primaryKey: true,

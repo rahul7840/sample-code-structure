@@ -7,14 +7,18 @@ import {
   CreatedAt,
   UpdatedAt,
   BelongsTo,
+  PrimaryKey,
+  AutoIncrement,
 } from 'sequelize-typescript';
-import { CommunityModel } from './communities-mode';
+import { CommunityItem } from './communities-item-model';
 
 @Table({
   tableName: 'pulse',
   timestamps: true,
 })
 export class Pulse extends Model<Pulse> {
+  @PrimaryKey
+  @AutoIncrement
   @Column({
     type: DataType.INTEGER,
     primaryKey: true,
@@ -22,7 +26,7 @@ export class Pulse extends Model<Pulse> {
   })
   pulse_id: number;
 
-  @ForeignKey(() => CommunityModel)
+  @ForeignKey(() => CommunityItem)
   @Column({
     type: DataType.BIGINT,
     allowNull: false,
@@ -53,6 +57,6 @@ export class Pulse extends Model<Pulse> {
   })
   updated_at: Date;
 
-  @BelongsTo(() => CommunityModel)
-  community_item: CommunityModel;
+  @BelongsTo(() => CommunityItem)
+  community_item: CommunityItem;
 }

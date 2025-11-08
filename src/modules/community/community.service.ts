@@ -10,6 +10,10 @@ import { LocalitiesModel } from 'src/model/localities-model';
 import { UserQuestionAnswerMappingModel } from 'src/model/que-ans-mapping-model';
 import { MediaModel } from 'src/model/media-model';
 import { InjectModel } from '@nestjs/sequelize';
+import { CommunityItemDto } from './dto/add-community-item.dto';
+import { CommunityItem, ItemTypeEnum } from 'src/model/communities-item-model';
+import { Pulse } from 'src/model/pulses.model';
+import { MarketModel } from 'src/model/market-model';
 
 @Injectable()
 export class CommunityService {
@@ -19,6 +23,10 @@ export class CommunityService {
     @InjectModel(QuestionModel)
     private readonly questionModel: typeof QuestionModel,
     @InjectModel(MediaModel) private readonly mediaModel: typeof MediaModel,
+    @InjectModel(MarketModel) private readonly marketModel: typeof MarketModel,
+    @InjectModel(Pulse) private readonly pulse: typeof Pulse,
+    @InjectModel(CommunityItem)
+    private readonly communityItem: typeof CommunityItem,
   ) {}
 
   async addCommunity(addCommunityDto: AddCommunityDto) {
@@ -51,6 +59,46 @@ export class CommunityService {
       return sendSuccess('Community added successfully', {});
     } catch (error) {
       return sendBadRequest(error.message);
+    }
+  }
+
+  async addCommunityItems(dto: CommunityItemDto) {
+    try {
+      const CreateIntoCommunity = await this.communityItem.create({
+        ...dto,
+      });
+
+      let finalResponce;
+      if (CreateIntoCommunity && dto.item_type_enum === ItemTypeEnum.PULS) {
+        finalResponce = await this.pulse.create({
+          title: dto.pulse_title,
+          description: dto.pulse_description,
+        });
+      } else if (
+        CreateIntoCommunity &&
+        dto.item_type_enum === ItemTypeEnum.MARKET
+      ) {
+        finalResponce = await this.marketModel.create({
+          post_type: dto.market_post_type,
+          title: dto.market_title ?? null,
+          description: dto.market_description ?? null,
+          category_name: dto.market_category_name ?? null,
+          address: dto.market_address ?? null,
+          amount: dto.market_amount ?? null,
+          name: dto.market_name ?? null,
+          mobile_number: dto.market_mobile_number ?? null,
+          community_item_id: dto.market_community_item_id,
+        });
+      }
+      const responce = {
+        community: CreateIntoCommunity,
+        community_item: finalResponce,
+      };
+
+      sendSuccess('success', responce);
+    } catch (e) {
+      console.log(e);
+      sendBadRequest('something went wrong ');
     }
   }
 }

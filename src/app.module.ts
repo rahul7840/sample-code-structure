@@ -15,6 +15,9 @@ import { RoleModel } from './model/role-model';
 import { UserProfileModel } from './model/users-model';
 import { CategoryModule } from './modules/category/category.module';
 import { OTPModel } from './model/otp.model';
+import { MarketModel } from './model/market-model';
+import { Pulse } from './model/pulses.model';
+import { CommunityItem } from './model/communities-item-model';
 
 @Module({
   imports: [
@@ -49,6 +52,9 @@ import { OTPModel } from './model/otp.model';
         RoleModel,
         UserProfileModel,
         OTPModel,
+        Pulse,
+        MarketModel,
+        CommunityItem,
       ],
       synchronize: false,
       autoLoadModels: true,

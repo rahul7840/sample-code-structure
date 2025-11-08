@@ -10,10 +10,20 @@ import { UserQuestionAnswerMappingModel } from 'src/model/que-ans-mapping-model'
 import { LocalitiesModel } from 'src/model/localities-model';
 import { CategoryModel } from 'src/model/category-model';
 import { UserProfileModel } from 'src/model/users-model';
+import { CommunityItem } from 'src/model/communities-item-model';
+import { Pulse } from 'src/model/pulses.model';
+import { MarketModel } from 'src/model/market-model';
 
 @Module({
   imports: [
-    SequelizeModule.forFeature([QuestionModel, CommunityModel, MediaModel]),
+    SequelizeModule.forFeature([
+      QuestionModel,
+      CommunityModel,
+      MediaModel,
+      CommunityItem,
+      Pulse,
+      MarketModel
+    ]),
   ],
   providers: [CommunityService],
   controllers: [CommunityController],
