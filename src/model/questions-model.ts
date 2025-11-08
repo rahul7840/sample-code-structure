@@ -4,7 +4,13 @@ import {
   PrimaryKey,
   Table,
   Model,
+  ForeignKey,
+  BelongsTo,
+  HasMany,
+  HasOne,
 } from 'sequelize-typescript';
+import { CommunityModel } from './communities-mode';
+import { UserQuestionAnswerMappingModel } from './que-ans-mapping-model';
 
 @Table({
   schema: 'public',
@@ -20,6 +26,7 @@ export class QuestionModel extends Model {
   })
   question_id: number;
 
+  @ForeignKey(() => CommunityModel)
   @Column({
     type: DataType.BIGINT,
     allowNull: true,
@@ -37,4 +44,10 @@ export class QuestionModel extends Model {
     allowNull: true,
   })
   question_description: string;
+
+  @BelongsTo(() => CommunityModel)
+  community: CommunityModel;
+
+  @HasOne(() => UserQuestionAnswerMappingModel)
+  userQuestionAnswerMapping: UserQuestionAnswerMappingModel;
 }

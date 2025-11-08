@@ -5,7 +5,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { CategoryModel } from './model/category-model';
 import { CommunityModel } from './model/communities-mode';
-import { UserCommunityMappingModel } from './model/community-mapping-model';
+import { UserCommunityMappingModel } from './model/user-community-mapping-model';
 import { JobTitleModel } from './model/job-title-model';
 import { LocalitiesModel } from './model/localities-model';
 import { MediaModel } from './model/media-model';
@@ -15,12 +15,15 @@ import { RoleModel } from './model/role-model';
 import { UserProfileModel } from './model/users-model';
 import { CategoryModule } from './modules/category/category.module';
 import { OTPModel } from './model/otp.model';
-import { MarketModel } from './model/market-model';
+import { AuthModule } from './modules/auth/auth.module';
+import { CommunityModule } from './modules/community/community.module';
+import { LocalityModule } from './modules/locality/locality.module';
+import { JobTitlesModule } from './modules/job-titles/job-titles.module';
+import { FilesModule } from './modules/files/files.module';
+import { UserModule } from './modules/user/user.module';
 import { Pulse } from './model/pulses.model';
 import { CommunityItem } from './model/communities-item-model';
-import { CommunityModule } from './modules/community/community.module';
-import { JobTitlesModule } from './modules/job-titles/job-titles.module';
-import { AuthModule } from './modules/auth/auth.module';
+import { MarketModel } from './model/market-model';
 
 @Module({
   imports: [
@@ -56,8 +59,8 @@ import { AuthModule } from './modules/auth/auth.module';
         UserProfileModel,
         OTPModel,
         Pulse,
-        MarketModel,
         CommunityItem,
+        MarketModel,
       ],
       synchronize: false,
       autoLoadModels: true,
@@ -80,6 +83,12 @@ import { AuthModule } from './modules/auth/auth.module';
     CategoryModule,
     CommunityModule,
     JobTitlesModule,
+    AuthModule,
+    CommunityModule,
+    LocalityModule,
+    JobTitlesModule,
+    FilesModule,
+    UserModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -10,6 +10,7 @@ import {
   PrimaryKey,
   AutoIncrement,
 } from 'sequelize-typescript';
+import { CommunityModel } from './communities-mode';
 import { CommunityItem } from './communities-item-model';
 
 @Table({
