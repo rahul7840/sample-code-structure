@@ -3,6 +3,16 @@ import { ConfigModule } from '@nestjs/config';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { CategoryModel } from './model/category-model';
+import { CommunityModel } from './model/communities-mode';
+import { UserCommunityMappingModel } from './model/community-mapping-model';
+import { JobTitleModel } from './model/job-title-model';
+import { localitiesModel } from './model/localities-model';
+import { MediaModel } from './model/media-model';
+import { UserQuestionAnswerMappingModel } from './model/que-ans-mapping-model';
+import { QuestionModel } from './model/questions-model';
+import { RoleModel } from './model/role-model';
+import { UserProfileModel } from './model/users-model';
 
 @Module({
   imports: [
@@ -10,7 +20,7 @@ import { AppService } from './app.service';
       isGlobal: true,
     }),
 
-      SequelizeModule.forRoot({
+    SequelizeModule.forRoot({
       dialect: 'postgres',
       host: process.env.db_host,
       port: Number(process.env.db_port),
@@ -20,13 +30,23 @@ import { AppService } from './app.service';
       timezone: '+05:30',
       dialectOptions: {
         ssl: {
-        require: true,
-        rejectUnauthorized: false, // important for DigitalOcean
-      },
+          require: true,
+          rejectUnauthorized: false, // important for DigitalOcean
+        },
         statement_timeout: 30000,
         idle_in_transaction_session_timeout: 20000,
       },
       models: [
+        // CommunityModel,
+        // CategoryModel,
+        // UserCommunityMappingModel,
+        // JobTitleModel,
+        // localitiesModel,
+        // MediaModel,
+        // UserQuestionAnswerMappingModel,
+        // QuestionModel,
+        // RoleModel,
+        // UserProfileModel,
       ],
       synchronize: false,
       autoLoadModels: true,
@@ -45,7 +65,6 @@ import { AppService } from './app.service';
         maxUses: 7500,
       },
     }),
-
   ],
   controllers: [AppController],
   providers: [AppService],
