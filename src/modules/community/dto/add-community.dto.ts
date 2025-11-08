@@ -63,16 +63,7 @@ export class AddCommunityDto {
   @IsString({ message: 'Banner image must be a string' })
   @ApiProperty({
     description: 'Banner image',
-    example: {
-      field_name: 'banner_image',
-      original_file_name: 'banner_12345.jpg',
-      encoding: '7bit',
-      mimetype: 'image/jpeg',
-      destination: '/path/to/upload',
-      file_name: 'banner_12345.jpg',
-      file_path: '/path/to/upload/banner_12345.jpg',
-      size: 12345,
-    },
+    example: '12342',
   })
   banner_image: IFile;
 }

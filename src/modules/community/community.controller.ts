@@ -1,12 +1,15 @@
-import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
 import { CommunityService } from './community.service';
 import { AddCommunityDto } from './dto/add-community.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { CommunityItemDto } from './dto/add-community-item.dto';
 import { JoinCommunityDto } from './dto/join-request.dto';
+import { UserAuthGuard } from '../utils/guards/auth.guard';
+import { UserId } from '../utils/decorators/user-id.decorator';
 
 @Controller('community')
 @ApiTags('community')
+@UseGuards(UserAuthGuard)
 export class CommunityController {
   constructor(private readonly communityService: CommunityService) {}
 
@@ -19,9 +22,15 @@ o
   async communityItem(@Body() dto: CommunityItemDto) {
     return await this.communityService.addCommunityItems(dto);
   }
+
   @Post('join-request')
   async joinCommunity(@Body() joinCommunityDto: JoinCommunityDto) {
     return this.communityService.joinCommunity(joinCommunityDto);
+  }
+
+  @Get('admin-listing')
+  async getCommunityAdminListing(@UserId() user_id: number) {
+    return this.communityService.getCommunityAdminListing(user_id);
   }
 
   @Get('admin-details/:community_id')
@@ -45,5 +54,6 @@ o
   ) {
     return this.communityService.getJoinRequestDetails(community_id);
   }
+  
 
 }

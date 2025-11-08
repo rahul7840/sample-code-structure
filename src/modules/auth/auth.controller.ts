@@ -5,6 +5,7 @@ import { OtpVerificationDTO, UserLoginDTO } from './dto/login.dto';
 import { SignUpDTO } from './dto/signup-dto';
 import { Response } from 'express';
 import { AddManagerDTO } from './dto/add-manager.dto';
+import { AdminLoginDTO } from './dto/admin-login.dto';
 
 @Controller('auth')
 @ApiTags('Auth')
@@ -24,6 +25,11 @@ export class AuthController {
   @Post('add-manager')
   addManager(@Body() body: AddManagerDTO) {
     return this.service.addManager(body);
+  }
+
+  @Post('admin-login')
+  adminLogin(@Body() body: AdminLoginDTO) {
+    return this.service.adminLogin(body);
   }
 
   @Post('verifyOtp/:otp_id')
