@@ -1,5 +1,4 @@
-import { Model } from 'sequelize';
-import { Column, DataType, PrimaryKey, Table } from 'sequelize-typescript';
+import { Column, DataType, PrimaryKey, Table, Model } from "sequelize-typescript";
 
 @Table({
   schema: 'public',
