@@ -108,12 +108,12 @@ export class AuthService {
         {
           name: body.name,
           company_name: body.company_name,
-          mobile_number: body.mobile_number,
+          phone_number: body.mobile_number,
           email: body.email,
         },
         { transaction: t },
       );
-
+      console.log(`created`,JSON.stringify(newUser,null,2))
       // await newUser.update(
       //   {
       //     created_by: newUser.user_id,
@@ -145,7 +145,6 @@ export class AuthService {
   }
 
   async verifyOtp(otp_id: number, body: OtpVerificationDTO, res: Response) {
-
     const t: Transaction = await this.sequelize.transaction();
 
     try {
@@ -156,7 +155,6 @@ export class AuthService {
         },
         transaction: t,
       });
-
 
       if (!otp) {
         return sendBadRequest(`otp verify failed`);
@@ -208,7 +206,7 @@ const generateAuthToken = (criteriaForJwt: any): string => {
   const secret = process.env.JWT_SECRET || 'fallback_secret';
 
   try {
-    const token = jwt.sign(criteriaForJwt, secret, { expiresIn: '1d' }); 
+    const token = jwt.sign(criteriaForJwt, secret, { expiresIn: '1d' });
     return token;
   } catch (error) {
     console.error('JWT Sign Error:', error);
