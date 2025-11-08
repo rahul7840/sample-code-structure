@@ -11,7 +11,6 @@ import * as jwt from 'jsonwebtoken';
  * @return {String} Secured Password
  */
 const hashPasswordUsingBcrypt = (plainTextPassword: string): string => {
-
   try {
     return bcrypt.hashSync(plainTextPassword, process.env.salt_round);
   } catch (error) {
@@ -37,11 +36,10 @@ const comparePasswordUsingBcrypt = (
  */
 
 const generateAuthToken = async (criteriaForJwt: any): Promise<string> => {
+  console.log('process.env.jwtSecret', process.env.jwtSecret);
 
-  console.log('process.env.jwtSecret',process.env.jwtSecret)
-  
   const secret = process.env.JWT_SECRET;
-  
+
   if (!secret) {
     throw new Error('JWT secret not found in environment variables');
   }
@@ -54,7 +52,6 @@ const generateAuthToken = async (criteriaForJwt: any): Promise<string> => {
     }
   }
 };
-
 
 const encryptPasswordUsingBcrypt = async (
   plainTextPassword: string,
@@ -71,7 +68,7 @@ const encryptPasswordUsingBcrypt = async (
 /**
  * @function <b>findByToken</b><br> decrypt Token
  * @param {String} token token to be decrypt
- * @return {Object} 
+ * @return {Object}
  */
 const findByToken = (token: string) => jwt.verify(token, process.env.jwtSecret);
 

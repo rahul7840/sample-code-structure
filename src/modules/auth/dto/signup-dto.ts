@@ -45,5 +45,4 @@ export class SignUpDTO {
     example: 1111,
   })
   job_title_id?: number;
-
 }

@@ -1,4 +1,10 @@
-import { Column, DataType, PrimaryKey, Table, Model } from "sequelize-typescript";
+import {
+  Column,
+  DataType,
+  PrimaryKey,
+  Table,
+  Model,
+} from 'sequelize-typescript';
 
 @Table({
   schema: 'public',
@@ -10,6 +16,7 @@ export class UserQuestionAnswerMappingModel extends Model {
   @Column({
     type: DataType.BIGINT,
     allowNull: false,
+    autoIncrement: true,
   })
   user_question_answer_mapping_id: number;
 
