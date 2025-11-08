@@ -110,6 +110,8 @@ export class AuthService {
           company_name: body.company_name,
           phone_number: body.mobile_number,
           email: body.email,
+          interested_categories:body.interested_categories.join(',') ?? null,
+          interested_localities:body.interested_localities.join(',') ?? null,
           job_title_id: body.job_title_id ?? null,
         },
         { transaction: t },

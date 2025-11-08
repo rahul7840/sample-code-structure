@@ -1,5 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { Type } from 'class-transformer';
+import {
+  IsArray,
+  IsEmail,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
 export class SignUpDTO {
   @IsNotEmpty()
@@ -42,8 +50,29 @@ export class SignUpDTO {
   @ApiProperty({
     type: String,
     description: 'Mobile number of the user',
-    example: 1111,
+    example: 100001,
   })
   job_title_id?: number;
 
+  @IsOptional()
+  @IsArray()
+  @Type(() => Number)
+  @IsNumber({}, { each: true })
+  @ApiProperty({
+    type: [Number],
+    description: 'Array of locality IDs the user is interested in',
+    example: [100001, 100002],
+  })
+  interested_localities?: number[];
+
+  @IsOptional()
+  @IsArray()
+  @Type(() => Number)
+  @IsNumber({}, { each: true })
+  @ApiProperty({
+    type: [Number],
+    description: 'Array of category IDs the user is interested in',
+    example: [100000, 100001],
+  })
+  interested_categories?: number[];
 }
