@@ -99,6 +99,10 @@ export class CommunityService {
           description: dto.pulse_description,
           community_item_id: CreateIntoCommunity.community_item_id,
         });
+        await this.communityModel.increment('post_count', {
+          by: 1,
+          where: { community_id: finalResponce.community_id },
+        });
       } else if (
         CreateIntoCommunity &&
         dto.item_type_enum === ItemTypeEnum.MARKET
@@ -113,6 +117,11 @@ export class CommunityService {
           name: dto.market_name ?? null,
           mobile_number: dto.market_mobile_number ?? null,
           community_item_id: CreateIntoCommunity.community_item_id,
+        });
+
+        await this.communityModel.increment('post_count', {
+          by: 1,
+          where: { community_id: finalResponce.community_id },
         });
       }
       const responce = {
