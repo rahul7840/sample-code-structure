@@ -254,8 +254,10 @@ export class AuthService {
         return sendBadRequest(`user not found`);
       }
 
-      if (user.is_super_admin !== true) {
-        return sendBadRequest(`User is not an admin`);
+      console.log('user', user);
+
+      if (!user.is_super_admin && !user.is_manager) {
+        return sendBadRequest(`User is not an admin or manager`);
       }
 
       // Compare the provided password with the stored hashed password

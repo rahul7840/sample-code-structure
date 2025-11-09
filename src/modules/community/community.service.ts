@@ -152,11 +152,6 @@ export class CommunityService {
             model: this.marketModel,
             as: 'market',
           },
-          {
-            model: this.categoryModel,
-            as: 'category',
-            attributes: ['category_name'],
-          },
         ],
       });
 
@@ -466,8 +461,15 @@ export class CommunityService {
       });
 
       if (!user.is_manager && user.is_super_admin) {
-        const communities = await this.communityModel.findAll({
-          where: {},
+        const communitiesFirst = await this.communityModel.findAll({
+          where: {
+          },
+          include: [
+            {
+              model: this.categoryModel,
+              as: 'category',
+            },
+          ],
         });
 
         let totalMembers: number = 0,
@@ -475,7 +477,7 @@ export class CommunityService {
           totalPosts: number = 0,
           totalActiveCommunities: number = 0;
 
-        for (const community of communities) {
+        for (const community of communitiesFirst) {
           totalMembers += Number(community.member_count);
           totalCommunities++;
           totalPosts += Number(community.post_count);
@@ -484,16 +486,19 @@ export class CommunityService {
           }
         }
 
-        return sendSuccess(
-          'Community admin listing fetched successfully',
-          communities,
-          {
-            totalMembers,
-            totalCommunities,
-            totalPosts,
-            totalActiveCommunities,
-          },
-        );
+        const adminCommunities = communitiesFirst.map((community) => ({
+          ...community.toJSON(),
+          category_name: community?.category?.category_name,
+        }));
+
+        return sendSuccess('Community admin listing fetched successfully', 
+          adminCommunities,
+       {
+          totalMembers,
+          totalCommunities,
+          totalPosts,
+          totalActiveCommunities,
+        });
       } else {
         const communities = await this.userCommunityMappingModel.findAll({
           where: {
@@ -503,6 +508,12 @@ export class CommunityService {
             {
               model: this.communityModel,
               as: 'community',
+              include: [
+                {
+                  model: this.categoryModel,
+                  as: 'category',
+                },
+              ],
             },
             {
               model: this.roleModel,
@@ -517,7 +528,7 @@ export class CommunityService {
 
         const communitiesWithDetails = communities.map((community) => ({
           ...community.community.toJSON(),
-          category_name: community.community.category.category_name,
+          category_name: community?.community?.category?.category_name,
         }));
 
         let totalMembers: number = 0;
