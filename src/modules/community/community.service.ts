@@ -44,12 +44,12 @@ export class CommunityService {
     @InjectModel(CategoryModel)
     private readonly categoryModel: typeof CategoryModel,
     @InjectModel(RoleModel) private readonly roleModel: typeof RoleModel,
-    @InjectModel(JobTitleModel) private readonly jobTitleModel: typeof JobTitleModel,
-  ) { }
+    @InjectModel(JobTitleModel)
+    private readonly jobTitleModel: typeof JobTitleModel,
+  ) {}
 
   async addCommunity(addCommunityDto: AddCommunityDto) {
     try {
-
       const community = await this.communityModel.create({
         locality_id: addCommunityDto.locality_id,
         category_id: addCommunityDto.category_id,
@@ -70,11 +70,13 @@ export class CommunityService {
       await this.userCommunityMappingModel.create({
         user_id: addCommunityDto.manager_id,
         community_id: community.community_id,
-        role_id: await this.roleModel.findOne({
-          where: {
-            role_name: 'Community Manager',
-          },
-        }).then((role) => role.role_id),
+        role_id: await this.roleModel
+          .findOne({
+            where: {
+              role_name: 'Community Manager',
+            },
+          })
+          .then((role) => role.role_id),
         is_approved: true,
       });
 
@@ -303,6 +305,18 @@ export class CommunityService {
         },
       });
 
+      const find = await this.userCommunityMappingModel.findOne({
+        where: {
+          community_id: joinCommunityDto.community_id,
+          user_id: joinCommunityDto.user_id,
+          is_approved: false,
+          role_id: role.role_id,
+        },
+      });
+
+      if (find) return sendSuccess('You already sended the join request', {});
+
+
       const userCommunityMapping = await this.userCommunityMappingModel.create({
         community_id: joinCommunityDto.community_id,
         user_id: joinCommunityDto.user_id,
@@ -335,7 +349,6 @@ export class CommunityService {
 
   async getCommunityAdminListing(user_id: number) {
     try {
-
       const user = await this.userProfileModel.findOne({
         where: {
           user_id,
@@ -343,13 +356,14 @@ export class CommunityService {
       });
 
       if (!user.is_manager && user.is_super_admin) {
-
         const communities = await this.communityModel.findAll({
-          where: {
-          },
+          where: {},
         });
 
-        let totalMembers: number = 0, totalCommunities: number = 0, totalPosts: number = 0, totalActiveCommunities: number = 0;
+        let totalMembers: number = 0,
+          totalCommunities: number = 0,
+          totalPosts: number = 0,
+          totalActiveCommunities: number = 0;
 
         for (const community of communities) {
           totalMembers += Number(community.member_count);
@@ -360,12 +374,16 @@ export class CommunityService {
           }
         }
 
-        return sendSuccess('Community admin listing fetched successfully', communities, {
-          totalMembers,
-          totalCommunities,
-          totalPosts,
-          totalActiveCommunities,
-        });
+        return sendSuccess(
+          'Community admin listing fetched successfully',
+          communities,
+          {
+            totalMembers,
+            totalCommunities,
+            totalPosts,
+            totalActiveCommunities,
+          },
+        );
       } else {
         const communities = await this.userCommunityMappingModel.findAll({
           where: {
@@ -383,8 +401,8 @@ export class CommunityService {
                 role_name: 'Community Manager',
               },
               required: true,
-            }
-          ]
+            },
+          ],
         });
 
         const communitiesWithDetails = communities.map((community) => ({
@@ -399,13 +417,15 @@ export class CommunityService {
           totalPosts += Number(community.post_count);
         }
 
-        return sendSuccess('Community admin listing fetched successfully', communitiesWithDetails, {
-          totalMembers,
-          totalPosts,
-        });
+        return sendSuccess(
+          'Community admin listing fetched successfully',
+          communitiesWithDetails,
+          {
+            totalMembers,
+            totalPosts,
+          },
+        );
       }
-
-
     } catch (error) {
       return sendBadRequest(error.message);
     }
