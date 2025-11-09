@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Param,
+  Patch,
   Post,
   Query,
   UseGuards,
@@ -39,6 +40,11 @@ export class CommunityController {
     return this.communityService.joinCommunity(joinCommunityDto);
   }
 
+  @Patch('approve/join-request/:mapping_id')
+  async approveJoinReq(@Param('mapping_id') mapping_id: number) {
+    return this.communityService.approveJoinReq(mapping_id);
+  }
+
   @Get('admin-listing')
   async getCommunityAdminListing(@UserId() user_id: number) {
     return this.communityService.getCommunityAdminListing(user_id);
@@ -49,7 +55,10 @@ export class CommunityController {
     @Query('community_id') community_id: number,
     @Query('user_id') user_id: number,
   ) {
-    return this.communityService.getUserCommunityQuestionAnswers(community_id, user_id);
+    return this.communityService.getUserCommunityQuestionAnswers(
+      community_id,
+      user_id,
+    );
   }
 
   @Get('admin-details/:community_id')
@@ -69,7 +78,6 @@ export class CommunityController {
   async getCommunityDetails(@Param('community_id') community_id: number) {
     return this.communityService.getJoinRequestDetails(community_id);
   }
-  
 
   @Post('community-item/approve-toggle')
   async pulseToggler(

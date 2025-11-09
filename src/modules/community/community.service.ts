@@ -297,6 +297,46 @@ export class CommunityService {
     }
   }
 
+  async approveJoinReq(mapping_id: number) {
+    try {
+      const find = await this.userCommunityMappingModel.findOne({
+        where: {
+          mapping_id,
+          is_approved: true,
+        },
+      });
+
+      if (find)
+        return sendSuccess(
+          'mapping not exist or you already been approved',
+          {},
+        );
+
+      await this.userCommunityMappingModel.update(
+        {
+          is_approved: true,
+        },
+        {
+          where: {
+            mapping_id,
+            is_approved: false,
+          },
+        },
+      );
+
+      const responce = await this.userCommunityMappingModel.findOne({
+        where: {
+          mapping_id,
+        },
+        attributes: ['mapping_id', 'is_approved', 'user_id'],
+      });
+
+      return sendSuccess('data updated', responce);
+    } catch (e) {
+      console.log('here is error', e);
+      return sendBadRequest('Unable to approve the join request');
+    }
+  }
   async joinCommunity(joinCommunityDto: JoinCommunityDto) {
     try {
       const role = await this.roleModel.findOne({
@@ -315,7 +355,6 @@ export class CommunityService {
       });
 
       if (find) return sendSuccess('You already sended the join request', {});
-
 
       const userCommunityMapping = await this.userCommunityMappingModel.create({
         community_id: joinCommunityDto.community_id,
