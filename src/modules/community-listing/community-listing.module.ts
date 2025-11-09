@@ -16,6 +16,7 @@ import { RoleModel } from 'src/model/role-model';
 
 import { SequelizeModule } from '@nestjs/sequelize';
 import { DatabaseModule } from 'src/database/database.module';
+import { PostgresFunctionService } from './storage/postgres-function.service';
 
 @Module({
   imports: [
@@ -35,7 +36,7 @@ import { DatabaseModule } from 'src/database/database.module';
       RoleModel,
     ]),
   ],
-  providers: [CommunityListingService],
+  providers: [CommunityListingService, PostgresFunctionService],
   controllers: [CommunityListingController],
 })
 export class CommunityListingModule {}
