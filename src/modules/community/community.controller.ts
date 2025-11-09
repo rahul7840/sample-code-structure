@@ -22,22 +22,25 @@ import { UserAuthGuard } from '../utils/guards/auth.guard';
 
 @Controller('community')
 @ApiTags('community')
-@UseGuards(UserAuthGuard)
 export class CommunityController {
-  constructor(private readonly communityService: CommunityService) {}
+  constructor(private readonly communityService: CommunityService) { }
 
   @Post('add')
+  @UseGuards(UserAuthGuard)
   async addCommunity(@Body() addCommunityDto: AddCommunityDto) {
     return this.communityService.addCommunity(addCommunityDto);
   }
+
   @Post('community-item')
+  @UseGuards(UserAuthGuard)
   async communityItem(@Body() dto: CommunityItemDto) {
     return await this.communityService.addCommunityItems(dto);
   }
 
   @Post('join-request')
-  async joinCommunity(@Body() joinCommunityDto: JoinCommunityDto) {
-    return this.communityService.joinCommunity(joinCommunityDto);
+  @UseGuards(UserAuthGuard)
+  async joinCommunity(@Body() joinCommunityDto: JoinCommunityDto, @UserId() user_id: number) {
+    return this.communityService.joinCommunity(joinCommunityDto, user_id);
   }
 
   @Patch('approve/join-request/:mapping_id')
@@ -46,11 +49,19 @@ export class CommunityController {
   }
 
   @Get('admin-listing')
+  @UseGuards(UserAuthGuard)
   async getCommunityAdminListing(@UserId() user_id: number) {
     return this.communityService.getCommunityAdminListing(user_id);
   }
 
+  @Get('admin-dashboard')
+  @UseGuards(UserAuthGuard)
+  async getCommunityAdminDashboard(@UserId() user_id: number) {
+    return this.communityService.getCommunityAdminDashboard();
+  }
+
   @Get('user-question-answers')
+  @UseGuards(UserAuthGuard)
   async getUserCommunityQuestionAnswers(
     @Query('community_id') community_id: number,
     @Query('user_id') user_id: number,
@@ -61,7 +72,14 @@ export class CommunityController {
     );
   }
 
+  @Get('community-questions/:community_id')
+  @UseGuards(UserAuthGuard)
+  async getCommunityQuestions(@Param('community_id') community_id: number) {
+    return this.communityService.getCommunityQuestions(community_id);
+  }
+
   @Get('admin-details/:community_id')
+  @UseGuards(UserAuthGuard)
   async getCommunityList(
     @Query('type') type: string,
     @Param('community_id') community_id: number,
@@ -70,16 +88,19 @@ export class CommunityController {
   }
 
   @Get('users/:community_id')
+  @UseGuards(UserAuthGuard)
   async getCommunityUsers(@Param('community_id') community_id: number) {
     return this.communityService.getCommunityUsers(community_id);
   }
 
   @Get('join-request/:community_id')
+  @UseGuards(UserAuthGuard)
   async getCommunityDetails(@Param('community_id') community_id: number) {
     return this.communityService.getJoinRequestDetails(community_id);
   }
 
   @Post('community-item/approve-toggle')
+  @UseGuards(UserAuthGuard)
   async pulseToggler(
     @Body() body: UpdateCommunityItemsDto,
     @UserId() user_id: number,
@@ -89,5 +110,10 @@ export class CommunityController {
       body.item_type_enum,
       user_id,
     );
+  }
+
+  @Get(':community_id')
+  async getCommunityDetailsById(@Param('community_id') community_id: number) {
+    return this.communityService.getCommunityDetailsById(community_id);
   }
 }

@@ -9,11 +9,20 @@ export const UserId = createParamDecorator(
     const tokenFromHeader = request.headers?.authorization;
     const tokenFromCookie = request.cookies?.Authorization;
 
-  const token = tokenFromCookie || tokenFromHeader;
+    console.log("tokenFromHeader: ", tokenFromHeader);
+    console.log("tokenFromCookie: ", tokenFromCookie);
+
+    let token = tokenFromHeader || tokenFromCookie;
+
+    if (token) {
+      token = token.replace("Bearer ", "");
+    }
 
     if (!token) {
       return;
     }
+
+    console.log("token in userid");
 
     const decoded: any = jwt.verify(token, process.env.JWT_SECRET);
 

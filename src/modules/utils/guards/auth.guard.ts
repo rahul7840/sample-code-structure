@@ -22,11 +22,15 @@ export class UserAuthGuard extends AuthGuard('Authorization') {
     const tokenFromHeader = request.headers?.authorization;
     const tokenFromCookie = request.cookies?.Authorization;
 
-    let token = tokenFromCookie || tokenFromHeader;
+    console.log("tokenFromHeader: ", tokenFromHeader);
+    console.log("tokenFromCookie: ", tokenFromCookie);
 
-    console.log("token in authguard: ", token);
+    let token = tokenFromHeader || tokenFromCookie;
 
-    token = token.replace("Bearer ", "");
+    if(token) {
+
+      token = token.replace("Bearer ", "");
+    }
 
     if (!token) {
       return false;
@@ -44,7 +48,7 @@ export class UserAuthGuard extends AuthGuard('Authorization') {
       if (!user) {
         return false;
       }
-
+ 
       return true;
     } catch (error) {
       console.log("error: ", error);

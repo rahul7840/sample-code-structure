@@ -26,6 +26,8 @@ import { CommunityItem } from './model/communities-item-model';
 import { MarketModel } from './model/market-model';
 import { NearbyLocalityModel } from './model/nearby-locality.model';
 import { CommunityListingModule } from './modules/community-listing/community-listing.module';
+import { PulseMedia } from './model/pulse-media-model';
+import { CommunityItemComment } from './model/community-item-comments-model';
 
 @Module({
   imports: [
@@ -64,6 +66,8 @@ import { CommunityListingModule } from './modules/community-listing/community-li
         CommunityItem,
         MarketModel,
         NearbyLocalityModel,
+        PulseMedia,
+        CommunityItemComment,
       ],
       synchronize: false,
       autoLoadModels: true,

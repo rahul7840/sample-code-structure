@@ -119,7 +119,7 @@ export class AuthService {
 
       const user = await this.userModel.findOne({
         where: {
-          [Op.or]: [{ mobile_number: body.mobile_number }],
+          [Op.or]: [{ phone_number: body.mobile_number }],
         },
         transaction: t,
       });

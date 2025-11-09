@@ -72,6 +72,8 @@ export class UserService {
                 ]
             });
 
+            // const userPlusesMarketPlace = await this.userCommunityMappingModel
+
             return sendSuccess('User profile', {
                 userProfile,
                 userCommunities

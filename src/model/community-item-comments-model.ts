@@ -9,25 +9,22 @@ import {
   BelongsTo,
   PrimaryKey,
   AutoIncrement,
-  HasMany,
 } from 'sequelize-typescript';
-import { CommunityModel } from './communities-mode';
 import { CommunityItem } from './communities-item-model';
-import { PulseMedia } from './pulse-media-model';
+import { UserProfileModel } from './users-model';
 
 @Table({
-  tableName: 'pulse',
+  tableName: 'community_item_comments',
   timestamps: true,
 })
-export class Pulse extends Model<Pulse> {
+export class CommunityItemComment extends Model<CommunityItemComment> {
   @PrimaryKey
   @AutoIncrement
   @Column({
-    type: DataType.INTEGER,
-    primaryKey: true,
-    autoIncrement: true,
+    type: DataType.BIGINT,
+    allowNull: false,
   })
-  pulse_id: number;
+  community_item_comment_id: number;
 
   @ForeignKey(() => CommunityItem)
   @Column({
@@ -36,33 +33,37 @@ export class Pulse extends Model<Pulse> {
   })
   community_item_id: number;
 
+  @ForeignKey(() => UserProfileModel)
   @Column({
-    type: DataType.STRING,
+    type: DataType.BIGINT,
     allowNull: false,
   })
-  title: string;
+  user_id: number;
 
   @Column({
     type: DataType.TEXT,
     allowNull: true,
   })
-  description: string;
+  comment: string;
 
   @CreatedAt
   @Column({
     type: DataType.DATE,
+    defaultValue: DataType.NOW,
   })
   created_at: Date;
 
   @UpdatedAt
   @Column({
     type: DataType.DATE,
+    defaultValue: DataType.NOW,
   })
   updated_at: Date;
 
+  // Associations
   @BelongsTo(() => CommunityItem)
   community_item: CommunityItem;
 
-  @HasMany(() => PulseMedia)
-  pulse_media: PulseMedia[];
+  @BelongsTo(() => UserProfileModel)
+  user: UserProfileModel;
 }

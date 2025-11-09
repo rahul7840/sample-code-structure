@@ -14,11 +14,11 @@ import {
 export class JobTitleModel extends Model {
   @PrimaryKey
   @Column({
-    type: DataType.INTEGER,
+    type: DataType.BIGINT,
     allowNull: false,
     autoIncrement: true,
   })
-  job_title_id: number;
+  job_title_id: string;
 
   @Column({
     type: DataType.STRING,

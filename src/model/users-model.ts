@@ -27,7 +27,7 @@ export class UserProfileModel extends Model {
   })
   user_id: bigint;
 
-    @ForeignKey(() => JobTitleModel)
+  @ForeignKey(() => JobTitleModel)
   @Column({
     type: DataType.BIGINT,
   })
@@ -103,6 +103,6 @@ export class UserProfileModel extends Model {
   })
   updated_at: Date;
 
-    @BelongsTo(() => JobTitleModel)
-    job_title: JobTitleModel;
+  @BelongsTo(() => JobTitleModel, { foreignKey: 'job_title_id' })
+  job_title: JobTitleModel;
 }

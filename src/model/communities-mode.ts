@@ -5,8 +5,11 @@ import {
   Table,
   Model,
   HasMany,
+  ForeignKey,
+  BelongsTo,
 } from 'sequelize-typescript';
 import { QuestionModel } from './questions-model';
+import { CategoryModel } from './category-model';
 
 @Table({
   schema: 'public',
@@ -34,6 +37,7 @@ export class CommunityModel extends Model {
   })
   locality_id: number;
 
+  @ForeignKey(() => CategoryModel)
   @Column({
     type: DataType.BIGINT,
     allowNull: true,
@@ -92,4 +96,7 @@ export class CommunityModel extends Model {
 
   @HasMany(() => QuestionModel)
   questions: QuestionModel[];
+
+  @BelongsTo(() => CategoryModel)
+  category: CategoryModel;
 }

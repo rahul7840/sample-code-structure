@@ -143,6 +143,11 @@ export class CommunityService {
             model: this.marketModel,
             as: 'market',
           },
+          {
+            model: this.categoryModel,
+            as: 'category',
+            attributes: ['category_name'],
+          }
         ],
       });
 
@@ -168,7 +173,7 @@ export class CommunityService {
             include: [
               {
                 model: this.jobTitleModel,
-                as: 'jobTitle',
+                as: 'job_title',
               },
             ],
           },
@@ -177,6 +182,7 @@ export class CommunityService {
 
       const communityUsersWithDetails = communityUsers.map((user) => ({
         ...user.userProfile.toJSON(),
+        mapping_id: user.mapping_id,
       }));
 
       return sendSuccess(
@@ -337,7 +343,67 @@ export class CommunityService {
       return sendBadRequest('Unable to approve the join request');
     }
   }
-  async joinCommunity(joinCommunityDto: JoinCommunityDto) {
+  async getCommunityQuestions(
+    community_id: number,
+  ) {
+    try {
+      const questions = await this.questionModel.findAll({
+        where: {
+          community_id,
+        },
+      });
+
+      return sendSuccess(
+        'Community questions fetched successfully',
+        questions,
+      );
+    } catch (error) {
+      return sendBadRequest(error.message);
+    }
+  }
+
+  async getCommunityAdminDashboard() {
+    try {
+      const community = await this.communityModel.count({
+        where: {
+        },
+      });
+
+      const pendingCommunityItems = await this.communityItem.count({
+        where: {
+          is_approved: false,
+        },
+      });
+
+      return sendSuccess(
+        'Community admin dashboard fetched successfully',
+        { communityCount: community, pendingCommunityItemsCount: pendingCommunityItems },
+      );
+    } catch (error) {
+      return sendBadRequest(error.message);
+    }
+  }
+
+  async getCommunityDetailsById(
+    community_id: number,
+  ) {
+    try {
+      const community = await this.communityModel.findOne({
+        where: {
+          community_id,
+        },
+      });
+
+      return sendSuccess(
+        'Community details fetched successfully',
+        { community },
+      );
+    } catch (error) {
+      return sendBadRequest(error.message);
+    }
+  }
+
+  async joinCommunity(joinCommunityDto: JoinCommunityDto, user_id: number) {
     try {
       const role = await this.roleModel.findOne({
         where: {
@@ -348,7 +414,7 @@ export class CommunityService {
       const find = await this.userCommunityMappingModel.findOne({
         where: {
           community_id: joinCommunityDto.community_id,
-          user_id: joinCommunityDto.user_id,
+          user_id: user_id,
           is_approved: false,
           role_id: role.role_id,
         },
@@ -358,7 +424,7 @@ export class CommunityService {
 
       const userCommunityMapping = await this.userCommunityMappingModel.create({
         community_id: joinCommunityDto.community_id,
-        user_id: joinCommunityDto.user_id,
+        user_id: user_id,
         is_approved: false,
         role_id: role.role_id,
       });
@@ -368,17 +434,17 @@ export class CommunityService {
           ...questionAnswer,
           question_id: questionAnswer.question_id,
           answer: questionAnswer.answer,
-          user_id: joinCommunityDto.user_id,
+          user_id: user_id,
         })),
       );
-      await this.userQuestionAnswerMappingModel.bulkCreate(
-        joinCommunityDto.questionAnswers.map((questionAnswer) => ({
-          ...questionAnswer,
-          question_id: questionAnswer.question_id,
-          answer: questionAnswer.answer,
-          user_id: joinCommunityDto.user_id,
-        })),
-      );
+      // await this.userQuestionAnswerMappingModel.bulkCreate(
+      //   joinCommunityDto.questionAnswers.map((questionAnswer) => ({
+      //     ...questionAnswer,
+      //     question_id: questionAnswer.question_id,
+      //     answer: questionAnswer.answer,
+      //     user_id: joinCommunityDto.user_id,
+      //   })),
+      // );
 
       return sendSuccess('Join request sent successfully', {});
     } catch (error) {
@@ -396,7 +462,8 @@ export class CommunityService {
 
       if (!user.is_manager && user.is_super_admin) {
         const communities = await this.communityModel.findAll({
-          where: {},
+          where: {
+          },
         });
 
         let totalMembers: number = 0,
@@ -413,16 +480,12 @@ export class CommunityService {
           }
         }
 
-        return sendSuccess(
-          'Community admin listing fetched successfully',
-          communities,
-          {
-            totalMembers,
-            totalCommunities,
-            totalPosts,
-            totalActiveCommunities,
-          },
-        );
+        return sendSuccess('Community admin listing fetched successfully', communities, {
+          totalMembers,
+          totalCommunities,
+          totalPosts,
+          totalActiveCommunities,
+        });
       } else {
         const communities = await this.userCommunityMappingModel.findAll({
           where: {
@@ -446,6 +509,7 @@ export class CommunityService {
 
         const communitiesWithDetails = communities.map((community) => ({
           ...community.community.toJSON(),
+          category_name: community.community.category.category_name,
         }));
 
         let totalMembers: number = 0;

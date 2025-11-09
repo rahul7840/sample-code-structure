@@ -20,12 +20,6 @@ export class JoinCommunityDto {
     @ApiProperty({ description: 'Community ID', example: 1 })
     community_id: number;
 
-    @IsNotEmpty()
     @ApiProperty({ description: 'Question Answers', example: { question_id: 1, answer: 'Answer 1' } })
     questionAnswers: QuestionAnswerDto[];
-
-    @IsNotEmpty()
-    @IsString()
-    @ApiProperty({ description: 'User ID', example: 1 })
-    user_id: number;
 }

@@ -10,11 +10,13 @@ import {
   PrimaryKey,
   AutoIncrement,
   HasOne,
+  HasMany,
 } from 'sequelize-typescript';
 import { UserProfileModel } from './users-model';
 import { CommunityModel } from './communities-mode';
 import { Pulse } from './pulses.model';
 import { MarketModel } from './market-model';
+import { CommunityItemComment } from './community-item-comments-model';
 
 export enum ItemTypeEnum {
   PULS = 'PULSE',
@@ -91,4 +93,7 @@ export class CommunityItem extends Model<CommunityItem> {
 
   @HasOne(() => MarketModel)
   market: MarketModel;
+
+  @HasMany(() => CommunityItemComment)
+  comments: CommunityItemComment[];
 }
