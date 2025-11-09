@@ -15,10 +15,27 @@ import { MarketModel } from 'src/model/market-model';
 import { RoleModel } from 'src/model/role-model';
 
 import { SequelizeModule } from '@nestjs/sequelize';
+import { DatabaseModule } from 'src/database/database.module';
 
 @Module({
-  imports: [SequelizeModule.forFeature([QuestionModel, CommunityModel, MediaModel, CommunityItem, Pulse, UserCommunityMappingModel, UserQuestionAnswerMappingModel, LocalitiesModel, CategoryModel, UserProfileModel, MarketModel, RoleModel]),],
+  imports: [
+    DatabaseModule,
+    SequelizeModule.forFeature([
+      QuestionModel,
+      CommunityModel,
+      MediaModel,
+      CommunityItem,
+      Pulse,
+      UserCommunityMappingModel,
+      UserQuestionAnswerMappingModel,
+      LocalitiesModel,
+      CategoryModel,
+      UserProfileModel,
+      MarketModel,
+      RoleModel,
+    ]),
+  ],
   providers: [CommunityListingService],
-  controllers: [CommunityListingController]
+  controllers: [CommunityListingController],
 })
 export class CommunityListingModule {}
