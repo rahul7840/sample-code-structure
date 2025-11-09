@@ -23,7 +23,7 @@ import { UserAuthGuard } from '../utils/guards/auth.guard';
 @Controller('community')
 @ApiTags('community')
 export class CommunityController {
-  constructor(private readonly communityService: CommunityService) { }
+  constructor(private readonly communityService: CommunityService) {}
 
   @Post('add')
   @UseGuards(UserAuthGuard)
@@ -39,13 +39,19 @@ export class CommunityController {
 
   @Post('join-request')
   @UseGuards(UserAuthGuard)
-  async joinCommunity(@Body() joinCommunityDto: JoinCommunityDto, @UserId() user_id: number) {
+  async joinCommunity(
+    @Body() joinCommunityDto: JoinCommunityDto,
+    @UserId() user_id: number,
+  ) {
     return this.communityService.joinCommunity(joinCommunityDto, user_id);
   }
 
   @Patch('approve/join-request/:mapping_id')
-  async approveJoinReq(@Param('mapping_id') mapping_id: number) {
-    return this.communityService.approveJoinReq(mapping_id);
+  async approveJoinReq(
+    @Param('mapping_id') mapping_id: number,
+    @Query('community_id') community_id: number,
+  ) {
+    return this.communityService.approveJoinReq(mapping_id, community_id);
   }
 
   @Get('admin-listing')

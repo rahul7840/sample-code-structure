@@ -147,7 +147,7 @@ export class CommunityService {
             model: this.categoryModel,
             as: 'category',
             attributes: ['category_name'],
-          }
+          },
         ],
       });
 
@@ -303,7 +303,7 @@ export class CommunityService {
     }
   }
 
-  async approveJoinReq(mapping_id: number) {
+  async approveJoinReq(mapping_id: number, community_id: number) {
     try {
       const find = await this.userCommunityMappingModel.findOne({
         where: {
@@ -330,6 +330,11 @@ export class CommunityService {
         },
       );
 
+      await this.communityModel.increment('member_count', {
+        by: 1,
+        where: { community_id: community_id },
+      });
+
       const responce = await this.userCommunityMappingModel.findOne({
         where: {
           mapping_id,
@@ -343,9 +348,7 @@ export class CommunityService {
       return sendBadRequest('Unable to approve the join request');
     }
   }
-  async getCommunityQuestions(
-    community_id: number,
-  ) {
+  async getCommunityQuestions(community_id: number) {
     try {
       const questions = await this.questionModel.findAll({
         where: {
@@ -353,10 +356,7 @@ export class CommunityService {
         },
       });
 
-      return sendSuccess(
-        'Community questions fetched successfully',
-        questions,
-      );
+      return sendSuccess('Community questions fetched successfully', questions);
     } catch (error) {
       return sendBadRequest(error.message);
     }
@@ -365,8 +365,7 @@ export class CommunityService {
   async getCommunityAdminDashboard() {
     try {
       const community = await this.communityModel.count({
-        where: {
-        },
+        where: {},
       });
 
       const pendingCommunityItems = await this.communityItem.count({
@@ -375,18 +374,16 @@ export class CommunityService {
         },
       });
 
-      return sendSuccess(
-        'Community admin dashboard fetched successfully',
-        { communityCount: community, pendingCommunityItemsCount: pendingCommunityItems },
-      );
+      return sendSuccess('Community admin dashboard fetched successfully', {
+        communityCount: community,
+        pendingCommunityItemsCount: pendingCommunityItems,
+      });
     } catch (error) {
       return sendBadRequest(error.message);
     }
   }
 
-  async getCommunityDetailsById(
-    community_id: number,
-  ) {
+  async getCommunityDetailsById(community_id: number) {
     try {
       const community = await this.communityModel.findOne({
         where: {
@@ -394,10 +391,9 @@ export class CommunityService {
         },
       });
 
-      return sendSuccess(
-        'Community details fetched successfully',
-        { community },
-      );
+      return sendSuccess('Community details fetched successfully', {
+        community,
+      });
     } catch (error) {
       return sendBadRequest(error.message);
     }
@@ -462,8 +458,7 @@ export class CommunityService {
 
       if (!user.is_manager && user.is_super_admin) {
         const communities = await this.communityModel.findAll({
-          where: {
-          },
+          where: {},
         });
 
         let totalMembers: number = 0,
@@ -480,12 +475,16 @@ export class CommunityService {
           }
         }
 
-        return sendSuccess('Community admin listing fetched successfully', communities, {
-          totalMembers,
-          totalCommunities,
-          totalPosts,
-          totalActiveCommunities,
-        });
+        return sendSuccess(
+          'Community admin listing fetched successfully',
+          communities,
+          {
+            totalMembers,
+            totalCommunities,
+            totalPosts,
+            totalActiveCommunities,
+          },
+        );
       } else {
         const communities = await this.userCommunityMappingModel.findAll({
           where: {
