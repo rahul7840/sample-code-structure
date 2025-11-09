@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { CommunityModel } from 'src/model/communities-mode';
-import { UserCommunityMappingModel } from 'src/model/user-community-mapping-model';
+import { approve_status, UserCommunityMappingModel } from 'src/model/user-community-mapping-model';
 import { AddCommunityDto } from './dto/add-community.dto';
 import { sendBadRequest, sendSuccess } from 'src/utils/response.util';
 import { QuestionModel } from 'src/model/questions-model';
@@ -17,6 +17,9 @@ import { MarketModel } from 'src/model/market-model';
 import { JoinCommunityDto } from './dto/join-request.dto';
 import { RoleModel } from 'src/model/role-model';
 import { JobTitleModel } from 'src/model/job-title-model';
+import { Op } from 'sequelize';
+
+
 
 @Injectable()
 export class CommunityService {
@@ -77,7 +80,8 @@ export class CommunityService {
             },
           })
           .then((role) => role.role_id),
-        is_approved: true,
+        // is_approved: true,
+        approve_status: approve_status.APPROVED,
       });
 
       return sendSuccess('Community added successfully', {});
@@ -90,6 +94,7 @@ export class CommunityService {
     try {
       const CreateIntoCommunity = await this.communityItem.create({
         ...dto,
+        is_approved: dto.is_manager ? true : false,
       });
 
       let finalResponce;
@@ -169,6 +174,10 @@ export class CommunityService {
       const communityUsers = await this.userCommunityMappingModel.findAll({
         where: {
           community_id,
+          [Op.or]: [
+            { approve_status: approve_status.APPROVED },
+            { approve_status: approve_status.PENDING },
+          ],
         },
         include: [
           {
@@ -187,6 +196,7 @@ export class CommunityService {
       const communityUsersWithDetails = communityUsers.map((user) => ({
         ...user.userProfile.toJSON(),
         mapping_id: user.mapping_id,
+        approve_status: user.approve_status,
       }));
 
       return sendSuccess(
@@ -203,7 +213,8 @@ export class CommunityService {
       const joinRequests = await this.userCommunityMappingModel.findAll({
         where: {
           community_id,
-          is_approved: false,
+          // is_approved: false,
+          approve_status: approve_status.PENDING,
         },
         include: [
           {
@@ -215,6 +226,8 @@ export class CommunityService {
 
       const joinRequestsWithDetails = joinRequests.map((request) => ({
         ...request.userProfile.toJSON(),
+        mapping_id: request.mapping_id,
+        approve_status: request.approve_status,
       }));
 
       return sendSuccess(
@@ -312,7 +325,8 @@ export class CommunityService {
       const find = await this.userCommunityMappingModel.findOne({
         where: {
           mapping_id,
-          is_approved: true,
+          // is_approved: true,
+          approve_status: approve_status.APPROVED,
         },
       });
 
@@ -324,12 +338,13 @@ export class CommunityService {
 
       await this.userCommunityMappingModel.update(
         {
-          is_approved: true,
+          // is_approved: true,
+          approve_status: approve_status.APPROVED,
         },
         {
           where: {
             mapping_id,
-            is_approved: false,
+            // is_approved: false,
           },
         },
       );
@@ -343,7 +358,7 @@ export class CommunityService {
         where: {
           mapping_id,
         },
-        attributes: ['mapping_id', 'is_approved', 'user_id'],
+        attributes: ['mapping_id', 'is_approved', 'user_id', 'approve_status'],
       });
 
       return sendSuccess('data updated', responce);
@@ -387,6 +402,29 @@ export class CommunityService {
     }
   }
 
+  async rejectJoinReq(mapping_id: number, community_id: number) {
+    try {
+      
+      await this.userCommunityMappingModel.update(
+        {
+          // is_approved: true,
+          approve_status: approve_status.REJECTED,
+        },
+        {
+          where: {
+            mapping_id,
+            // is_approved: false,
+            approve_status: approve_status.PENDING,
+          },
+        },
+      );
+
+      return sendSuccess('data updated', {});
+    } catch (error) {
+      return sendBadRequest(error.message);
+    }
+  }
+
   async getCommunityDetailsById(community_id: number) {
     try {
       const community = await this.communityModel.findOne({
@@ -415,7 +453,8 @@ export class CommunityService {
         where: {
           community_id: joinCommunityDto.community_id,
           user_id: user_id,
-          is_approved: false,
+          // is_approved: false,
+          approve_status: approve_status.PENDING,
           role_id: role.role_id,
         },
       });
@@ -425,7 +464,8 @@ export class CommunityService {
       const userCommunityMapping = await this.userCommunityMappingModel.create({
         community_id: joinCommunityDto.community_id,
         user_id: user_id,
-        is_approved: false,
+        // is_approved: false,
+        approve_status: approve_status.PENDING,
         role_id: role.role_id,
       });
 

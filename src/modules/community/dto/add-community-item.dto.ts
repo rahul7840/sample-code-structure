@@ -50,6 +50,15 @@ export class CommunityItemDto {
   })
   pulse_title: string;
 
+  @IsBoolean()
+  @IsOptional()
+  @ApiProperty({
+    type: Boolean,
+    description: 'is manager',
+    example: true,
+  })
+  is_manager: boolean;
+
   @IsString()
   @IsOptional()
   @ApiProperty({

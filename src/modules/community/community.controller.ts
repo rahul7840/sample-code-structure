@@ -54,6 +54,15 @@ export class CommunityController {
     return this.communityService.approveJoinReq(mapping_id, community_id);
   }
 
+  @Patch('reject/join-request/:mapping_id')
+  @UseGuards(UserAuthGuard)
+  async rejectJoinReq(
+    @Param('mapping_id') mapping_id: number,
+    @Query('community_id') community_id: number,
+  ) {
+    return this.communityService.rejectJoinReq(mapping_id, community_id);
+  }
+
   @Get('admin-listing')
   @UseGuards(UserAuthGuard)
   async getCommunityAdminListing(@UserId() user_id: number) {

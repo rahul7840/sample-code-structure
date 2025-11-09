@@ -11,6 +11,12 @@ import { UserProfileModel } from './users-model';
 import { CommunityModel } from './communities-mode';
 import { RoleModel } from './role-model';
 
+export enum approve_status {
+  PENDING = 'PENDING',
+  APPROVED = 'APPROVED',
+  REJECTED = 'REJECTED',
+}
+
 @Table({
   schema: 'public',
   tableName: 'user_community_mapping',
@@ -38,6 +44,12 @@ export class UserCommunityMappingModel extends Model {
     allowNull: true,
   })
   user_id: number;
+
+  @Column({
+    type: DataType.ENUM(...Object.values(approve_status)),
+    allowNull: true,
+  })
+  approve_status: approve_status;
 
   @ForeignKey(() => RoleModel)
   @Column({
