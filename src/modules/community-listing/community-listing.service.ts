@@ -15,7 +15,7 @@ export class CommunityListingService {
   ) {
     const payload = [
       body.community_id?.join(',') || '',
-      body.category_id?.join(',') || 0,
+      body.category_id?.join(',') || '',
       body.locality_id?.join(',') || '',
       user_id || 0,
       body.is_nearby || null,
