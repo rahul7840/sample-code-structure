@@ -12,7 +12,7 @@ export class CommunityListingController {
     private readonly communityListingService: CommunityListingService,
   ) {}
 
-  @Post('all-co-projects')
+  @Post('add')
   @ApiQuery({
     name: 'record_per_page',
     required: false,
